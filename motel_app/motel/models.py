@@ -25,16 +25,54 @@ class Gender(Enum):
 
 
 class User(AbstractUser):
-    avatar = models.CharField()
+    avatar = models.CharField(max_length=500)
     user_role = EnumChoiceField(UserRole, default=UserRole.TENANT)
-    phone = models.CharField(max_length=10, blank=False)
+    phone = models.CharField(max_length=10)
     gender = EnumChoiceField(Gender, default=Gender.MALE)
+    following = models.ManyToManyField('self',symmetrical=False, related_name='followers', through='Follow')
+    reservations = models.ManyToManyField('Motel', through='Reservation')
 
 
-# Tro: id, giathue, soluongnguoi, kichthuoc, xaphuong, quanhuyen, tinhtp, diachikhac, mota
-class Motel(models.Model):
+class Follow(models.Model):
+    follower = models.ForeignKey(User, on_delete=models.CASCADE, related_name='follow_user')
+    following = models.ForeignKey(User, on_delete=models.CASCADE, related_name='follow_following')
+
+
+class Motel(BaseModel):
     description = models.CharField(max_length=255)
-    price = models.FloatField(blank=False)
+    price = models.FloatField()
     max_people = models.IntegerField()
+    xaphuong = models.CharField(max_length=255)
+    quanhuyen = models.CharField(max_length=255)
+    tinhtp = models.CharField(max_length=255)
+    diachikhac = models.CharField(max_length=255)
+    dientich = models.FloatField()
+    owner = models.ForeignKey(User, related_name='motels', on_delete=models.CASCADE)
 
 
+class Utility(BaseModel):
+    label = models.CharField(max_length=100)
+    value = models.CharField(max_length=100)
+    motel = models.ForeignKey(Motel, related_name='utilities', on_delete=models.CASCADE)
+
+
+class Price(BaseModel):
+    label = models.CharField(max_length=100)
+    value = models.FloatField()
+    motel = models.ForeignKey(Motel, related_name='prices', on_delete=models.CASCADE)
+
+
+class Image(BaseModel):
+    source = models.CharField(max_length=255)
+
+    class Meta:
+        abstract = True
+
+
+class MotelImage(Image):
+    motel = models.ForeignKey(Motel, related_name='motelimages', on_delete=models.CASCADE)
+
+
+class Reservation(BaseModel):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    motel = models.ForeignKey(Motel, on_delete=models.CASCADE)
