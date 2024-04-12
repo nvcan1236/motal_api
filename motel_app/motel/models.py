@@ -25,11 +25,11 @@ class Gender(Enum):
 
 
 class User(AbstractUser):
-    avatar = models.CharField(max_length=500)
+    avatar = models.FileField(upload_to='motel/static/images/upload')
     user_role = EnumChoiceField(UserRole, default=UserRole.TENANT)
     phone = models.CharField(max_length=10)
     gender = EnumChoiceField(Gender, default=Gender.MALE)
-    following = models.ManyToManyField('self',symmetrical=False, related_name='followers', through='Follow')
+    following = models.ManyToManyField('self', symmetrical=False, related_name='followers', through='Follow')
     reservations = models.ManyToManyField('Motel', through='Reservation')
 
 
@@ -47,6 +47,8 @@ class Motel(BaseModel):
     tinhtp = models.CharField(max_length=255)
     diachikhac = models.CharField(max_length=255)
     dientich = models.FloatField()
+    lon = models.CharField(max_length=100)
+    lat = models.CharField(max_length=100)
     owner = models.ForeignKey(User, related_name='motels', on_delete=models.CASCADE)
 
 

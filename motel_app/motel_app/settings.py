@@ -15,7 +15,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
@@ -26,7 +25,6 @@ SECRET_KEY = 'django-insecure-a^zb+yhpic9c7bxl4bn4iue=y$69+cy(a*f-)i#+np%zv8!k#=
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -39,6 +37,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'motel.apps.MotelConfig',
     'post.apps.PostConfig',
+    'ckeditor',
+    'ckeditor_uploader',
+    'oauth2_provider',
+    'corsheaders',
+    'django.contrib.staticfiles',
+    'drf_yasg',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -49,11 +54,14 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 
 ]
 
+MEDIA_ROOT = f'{BASE_DIR}/'
 ROOT_URLCONF = 'motel_app.urls'
 AUTH_USER_MODEL = 'motel.User'
+CORS_ALLOW_ALL_ORIGINS = True
 
 TEMPLATES = [
     {
@@ -72,7 +80,13 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'motel_app.wsgi.application'
+CKEDITOR_UPLOAD_PATH = "post/images/upload"
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+    )
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
@@ -86,7 +100,6 @@ DATABASES = {
         'HOST': ''
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -106,7 +119,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
@@ -118,7 +130,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
@@ -128,3 +139,6 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CLIENT_ID = 'SdDY7dKlhC0psQZvmKXDH14hXNSzqdVgc6cWF2Lg'
+CLIENT_SECRET = 'P4cBbnWk6wiIvO5kaRjLKlqQyvHiJk5rfaBUT2z9Q3g9qxPNbyMxYT7ogg8GYpzf8k4ee22Fhw4e3i84b9wFZUWCfAkImKOAVpJNakrhQALhBOs45jwbkB0QPUWvgO7E'

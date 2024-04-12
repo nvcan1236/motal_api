@@ -2,11 +2,12 @@ import enum
 
 from django.db import models
 from motel.models import BaseModel, Motel, User, Image
+from ckeditor.fields import RichTextField
 
 
 class Post(BaseModel):
     title = models.CharField(max_length=255)
-    description = models.TextField()
+    content = RichTextField()
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
 
 
