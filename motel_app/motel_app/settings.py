@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+import cloudinary
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -41,7 +42,6 @@ INSTALLED_APPS = [
     'ckeditor_uploader',
     'oauth2_provider',
     'corsheaders',
-    'django.contrib.staticfiles',
     'drf_yasg',
     'rest_framework',
 ]
@@ -88,18 +88,36 @@ REST_FRAMEWORK = {
     )
 }
 
+cloudinary.config(
+    cloud_name="dbd7vfk12",
+    api_key="381798527745373",
+    api_secret="mq7kD-ynrQsabeC3zUXc5zHuDIY"
+)
+
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'moteldb',
+#         'USER': 'root',
+#         'PASSWORD': 'Myca@1236',
+#         'HOST': ''
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'moteldb',
-        'USER': 'root',
-        'PASSWORD': 'Myca@1236',
-        'HOST': ''
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'postgres',
+        'USER': 'postgres.msiykbmpnrmdutymxozk',
+        'PASSWORD': 'Supabase@123',
+        'HOST': 'aws-0-ap-southeast-1.pooler.supabase.com',
+        'PORT': '5432',
     }
 }
+# Mật khẩu database online: Supabase@123
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -140,5 +158,11 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CLIENT_ID = 'SdDY7dKlhC0psQZvmKXDH14hXNSzqdVgc6cWF2Lg'
-CLIENT_SECRET = 'P4cBbnWk6wiIvO5kaRjLKlqQyvHiJk5rfaBUT2z9Q3g9qxPNbyMxYT7ogg8GYpzf8k4ee22Fhw4e3i84b9wFZUWCfAkImKOAVpJNakrhQALhBOs45jwbkB0QPUWvgO7E'
+# Thông tin chứng thực local mysql
+# CLIENT_ID = 'SdDY7dKlhC0psQZvmKXDH14hXNSzqdVgc6cWF2Lg'
+# CLIENT_SECRET = 'P4cBbnWk6wiIvO5kaRjLKlqQyvHiJk5rfaBUT2z9Q3g9qxPNbyMxYT7ogg8GYpzf8k4ee22Fhw4e3i84b9wFZUWCfAkImKOAVpJNakrhQALhBOs45jwbkB0QPUWvgO7E'
+
+
+# Thông tin app chúng thực bên Database online
+CLIENT_ID = 'O7s7zC71oV5apJerFffTTwqbiq9iC0sJ4obZknan'
+CLIENT_SECRET = 'WVPx5paiJ1vD0Fn8wBYUSKxWl6Jee9P6UYALwKZscgDPwURdBPbr8TjXWjWV7EJJTCvhh6npFZx1AfFNLkwjY9Ou6HaE0e1aRIfpHq6MtfyzkHby736WBzFavyv4hjb8'

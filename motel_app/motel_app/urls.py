@@ -18,7 +18,7 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('admin/', admin_site.urls),
-    path('motel/', include('motel.urls')),
+    path('', include('motel.urls')),
     path('post/', include('post.urls')),
     re_path(r'^ckeditor/',
             include('ckeditor_uploader.urls')),
