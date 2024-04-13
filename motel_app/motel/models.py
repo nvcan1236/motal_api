@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from enumchoicefield import EnumChoiceField
 from enum import Enum
+from cloudinary.models import CloudinaryField
 
 
 class BaseModel(models.Model):
@@ -24,18 +25,25 @@ class Gender(Enum):
     OTHER = 'Khac'
 
 
+# default_avatar = "v1712980191/default-avatar-profile-icon-social-media-user-photo-in-flat-style-vector_uhlwvn.jpg"
+# default=default_avatar
+
 class User(AbstractUser):
-    avatar = models.FileField(upload_to='motel/static/images/upload')
+    avatar = CloudinaryField()
     user_role = EnumChoiceField(UserRole, default=UserRole.TENANT)
-    phone = models.CharField(max_length=10)
+    phone = models.CharField(max_length=10, unique=True)
+    email = models.EmailField(max_length=50, unique=True)
     gender = EnumChoiceField(Gender, default=Gender.MALE)
     following = models.ManyToManyField('self', symmetrical=False, related_name='followers', through='Follow')
     reservations = models.ManyToManyField('Motel', through='Reservation')
 
 
-class Follow(models.Model):
+class Follow(BaseModel):
     follower = models.ForeignKey(User, on_delete=models.CASCADE, related_name='follow_user')
     following = models.ForeignKey(User, on_delete=models.CASCADE, related_name='follow_following')
+
+    class Meta:
+        unique_together = ('follower', 'following')
 
 
 class Motel(BaseModel):
