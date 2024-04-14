@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 import cloudinary
 
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -25,7 +24,6 @@ SECRET_KEY = 'django-insecure-a^zb+yhpic9c7bxl4bn4iue=y$69+cy(a*f-)i#+np%zv8!k#=
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
 
 # Application definition
 
@@ -65,7 +63,6 @@ CORS_ALLOW_ALL_ORIGINS = True
 STATIC_URL = 'static/'
 ALLOWED_HOSTS = ['*']
 
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -94,7 +91,8 @@ REST_FRAMEWORK = {
 cloudinary.config(
     cloud_name='dbd7vfk12',
     api_key='381798527745373',
-    api_secret='mq7kD-ynrQsabeC3zUXc5zHuDIY'
+    api_secret='mq7kD-ynrQsabeC3zUXc5zHuDIY',
+    api_proxy="http://proxy.server:3128"
 )
 
 # Database
@@ -174,6 +172,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # CLIENT_SECRET = 'P4cBbnWk6wiIvO5kaRjLKlqQyvHiJk5rfaBUT2z9Q3g9qxPNbyMxYT7ogg8GYpzf8k4ee22Fhw4e3i84b9wFZUWCfAkImKOAVpJNakrhQALhBOs45jwbkB0QPUWvgO7E'
 
 
+# Oauth app pythonanywhere
+# CLIENT_ID = '8OdjuOvhjzLFCigIbuw3mbDAlhWTirzeM7s1W1g2'
+# CLIENT_SECRET = '8pj5yZzwnH0vN3hflMrJJ7QBENDCsMKfIUlGQ15Gyg9GPTRCFXsIxm7iiF7xmcPf2IOz5uIXmfD9TjXJI3mKWHIQQ1HStaY3duHkIrSc4GWJGcyg1ZQgKtYIOxRksXia'
+
 # Thông tin app chúng thực bên Database online
-CLIENT_ID = 'O7s7zC71oV5apJerFffTTwqbiq9iC0sJ4obZknan'
-CLIENT_SECRET = 'WVPx5paiJ1vD0Fn8wBYUSKxWl6Jee9P6UYALwKZscgDPwURdBPbr8TjXWjWV7EJJTCvhh6npFZx1AfFNLkwjY9Ou6HaE0e1aRIfpHq6MtfyzkHby736WBzFavyv4hjb8'
+# CLIENT_ID = 'O7s7zC71oV5apJerFffTTwqbiq9iC0sJ4obZknan'
+# CLIENT_SECRET = 'WVPx5paiJ1vD0Fn8wBYUSKxWl6Jee9P6UYALwKZscgDPwURdBPbr8TjXWjWV7EJJTCvhh6npFZx1AfFNLkwjY9Ou6HaE0e1aRIfpHq6MtfyzkHby736WBzFavyv4hjb8'

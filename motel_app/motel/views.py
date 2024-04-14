@@ -1,15 +1,23 @@
-from django.shortcuts import render
-from rest_framework import viewsets, generics, response, status
+from rest_framework import viewsets, generics, response, status, permissions
 from rest_framework.decorators import action
 
 from motel.models import User, Follow
-from motel import serializers
+from motel import serializers, perms
 
 
 # Create your views here.
 class UserViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.RetrieveUpdateAPIView):
     serializer_class = serializers.DetailUserSerializer
     queryset = User.objects.filter(is_active=True)
+
+    def get_permissions(self):
+        if self.action in ['get_followers', 'get_following', 'follow']:
+            return [permissions.IsAuthenticated()]
+
+        if self.action in ['update', 'partial_update']:
+            return [perms.IsOwner()]
+
+        return [permissions.AllowAny()]
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
