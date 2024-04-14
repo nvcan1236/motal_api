@@ -25,8 +25,6 @@ SECRET_KEY = 'django-insecure-a^zb+yhpic9c7bxl4bn4iue=y$69+cy(a*f-)i#+np%zv8!k#=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -57,11 +55,13 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
 
 ]
-
+# STATIC_ROOT = "/home/CanhNguyen/motel_api/motel_app/static"
 MEDIA_ROOT = f'{BASE_DIR}/'
 ROOT_URLCONF = 'motel_app.urls'
 AUTH_USER_MODEL = 'motel.User'
 CORS_ALLOW_ALL_ORIGINS = True
+STATIC_URL = 'static/'
+ALLOWED_HOSTS = ['*']
 
 TEMPLATES = [
     {
@@ -89,34 +89,44 @@ REST_FRAMEWORK = {
 }
 
 cloudinary.config(
-    cloud_name="dbd7vfk12",
-    api_key="381798527745373",
-    api_secret="mq7kD-ynrQsabeC3zUXc5zHuDIY"
+    cloud_name='dbd7vfk12',
+    api_key='381798527745373',
+    api_secret='mq7kD-ynrQsabeC3zUXc5zHuDIY',
+    api_proxy="http://proxy.server:3128"
 )
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'moteldb',
+        'USER': 'root',
+        'PASSWORD': 'Myca@1236',
+        'HOST': ''
+    }
+}
+
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.mysql',
 #         'NAME': 'moteldb',
-#         'USER': 'root',
+#         'USER': 'CanhNguyen',
 #         'PASSWORD': 'Myca@1236',
-#         'HOST': ''
+#         'HOST': 'CanhNguyen.mysql.pythonanywhere-services.com'
 #     }
 # }
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'postgres',
-        'USER': 'postgres.msiykbmpnrmdutymxozk',
-        'PASSWORD': 'Supabase@123',
-        'HOST': 'aws-0-ap-southeast-1.pooler.supabase.com',
-        'PORT': '5432',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'CanhNguyen$moteldb',
+#         'USER': 'CanhNguyen',
+#         'PASSWORD': 'Myca@1236',
+#         'HOST': 'CanhNguyen.mysql.pythonanywhere-services.com'
+#     }
+# }
 # Mật khẩu database online: Supabase@123
 
 # Password validation
@@ -151,7 +161,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -163,6 +172,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # CLIENT_SECRET = 'P4cBbnWk6wiIvO5kaRjLKlqQyvHiJk5rfaBUT2z9Q3g9qxPNbyMxYT7ogg8GYpzf8k4ee22Fhw4e3i84b9wFZUWCfAkImKOAVpJNakrhQALhBOs45jwbkB0QPUWvgO7E'
 
 
+# Oauth app pythonanywhere
+# CLIENT_ID = '8OdjuOvhjzLFCigIbuw3mbDAlhWTirzeM7s1W1g2'
+# CLIENT_SECRET = '8pj5yZzwnH0vN3hflMrJJ7QBENDCsMKfIUlGQ15Gyg9GPTRCFXsIxm7iiF7xmcPf2IOz5uIXmfD9TjXJI3mKWHIQQ1HStaY3duHkIrSc4GWJGcyg1ZQgKtYIOxRksXia'
+
 # Thông tin app chúng thực bên Database online
-CLIENT_ID = 'O7s7zC71oV5apJerFffTTwqbiq9iC0sJ4obZknan'
-CLIENT_SECRET = 'WVPx5paiJ1vD0Fn8wBYUSKxWl6Jee9P6UYALwKZscgDPwURdBPbr8TjXWjWV7EJJTCvhh6npFZx1AfFNLkwjY9Ou6HaE0e1aRIfpHq6MtfyzkHby736WBzFavyv4hjb8'
+# CLIENT_ID = 'O7s7zC71oV5apJerFffTTwqbiq9iC0sJ4obZknan'
+# CLIENT_SECRET = 'WVPx5paiJ1vD0Fn8wBYUSKxWl6Jee9P6UYALwKZscgDPwURdBPbr8TjXWjWV7EJJTCvhh6npFZx1AfFNLkwjY9Ou6HaE0e1aRIfpHq6MtfyzkHby736WBzFavyv4hjb8'
