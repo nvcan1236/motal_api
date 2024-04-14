@@ -12,10 +12,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 import cloudinary
-import environ
 
-env = environ.Env()
-environ.Env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -95,23 +92,23 @@ REST_FRAMEWORK = {
 }
 
 cloudinary.config(
-    cloud_name=env("CLOUD_NAME"),
-    api_key=env("API_KEY"),
-    api_secret=env("API_SECRET")
+    cloud_name='dbd7vfk12',
+    api_key='381798527745373',
+    api_secret='mq7kD-ynrQsabeC3zUXc5zHuDIY'
 )
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'moteldb',
-#         'USER': 'root',
-#         'PASSWORD': 'Myca@1236',
-#         'HOST': ''
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'moteldb',
+        'USER': 'root',
+        'PASSWORD': 'Myca@1236',
+        'HOST': ''
+    }
+}
 
 # DATABASES = {
 #     'default': {
@@ -123,15 +120,15 @@ cloudinary.config(
 #     }
 # }
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'CanhNguyen$moteldb',
-        'USER': 'CanhNguyen',
-        'PASSWORD': 'Myca@1236',
-        'HOST': 'CanhNguyen.mysql.pythonanywhere-services.com'
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'CanhNguyen$moteldb',
+#         'USER': 'CanhNguyen',
+#         'PASSWORD': 'Myca@1236',
+#         'HOST': 'CanhNguyen.mysql.pythonanywhere-services.com'
+#     }
+# }
 # Mật khẩu database online: Supabase@123
 
 # Password validation
@@ -178,5 +175,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # Thông tin app chúng thực bên Database online
-CLIENT_ID = env("CLIENT_ID")
-CLIENT_SECRET = env("CLIENT_SECRET")
+CLIENT_ID = 'O7s7zC71oV5apJerFffTTwqbiq9iC0sJ4obZknan'
+CLIENT_SECRET = 'WVPx5paiJ1vD0Fn8wBYUSKxWl6Jee9P6UYALwKZscgDPwURdBPbr8TjXWjWV7EJJTCvhh6npFZx1AfFNLkwjY9Ou6HaE0e1aRIfpHq6MtfyzkHby736WBzFavyv4hjb8'
