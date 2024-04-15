@@ -121,10 +121,10 @@ DATABASES = {
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'CanhNguyen$moteldb',
-#         'USER': 'CanhNguyen',
+#         'NAME': 'motel$moteldb',
+#         'USER': 'motel',
 #         'PASSWORD': 'Myca@1236',
-#         'HOST': 'CanhNguyen.mysql.pythonanywhere-services.com'
+#         'HOST': 'motel.mysql.pythonanywhere-services.com'
 #     }
 # }
 # Mật khẩu database online: Supabase@123

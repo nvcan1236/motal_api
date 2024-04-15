@@ -11,13 +11,17 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.RetrieveUpd
     queryset = User.objects.filter(is_active=True)
 
     def get_permissions(self):
-        if self.action in ['get_followers', 'get_following', 'follow']:
+        if self.action in ['get_followers', 'get_following', 'follow', 'current_user']:
             return [permissions.IsAuthenticated()]
 
         if self.action in ['update', 'partial_update']:
             return [perms.IsOwner()]
 
         return [permissions.AllowAny()]
+
+    @action(methods=['get'], url_path='current_user', detail=False)
+    def current_user(self, request):
+        return response.Response(serializers.DetailUserSerializer(request.user).data)
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
