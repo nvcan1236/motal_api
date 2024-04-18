@@ -47,40 +47,43 @@ class Follow(BaseModel):
 
 
 class Motel(BaseModel):
-    description = models.CharField(max_length=255)
+    description = models.CharField(max_length=500)
     price = models.FloatField()
+    furniture = models.CharField(max_length=255)
     max_people = models.IntegerField()
-    xaphuong = models.CharField(max_length=255)
-    quanhuyen = models.CharField(max_length=255)
-    tinhtp = models.CharField(max_length=255)
-    diachikhac = models.CharField(max_length=255)
-    dientich = models.FloatField()
+    ward = models.CharField(max_length=255)
+    district = models.CharField(max_length=255)
+    city = models.CharField(max_length=255)
+    other_address = models.CharField(max_length=255)
+    area = models.FloatField()
     lon = models.CharField(max_length=100)
     lat = models.CharField(max_length=100)
     owner = models.ForeignKey(User, related_name='motels', on_delete=models.CASCADE)
 
 
-class Utility(BaseModel):
-    label = models.CharField(max_length=100)
-    value = models.CharField(max_length=100)
-    motel = models.ForeignKey(Motel, related_name='utilities', on_delete=models.CASCADE)
+class PriceEnum(Enum):
+    WATER = 'Nuoc'
+    ELECTRICITY = 'Dien'
+    INTERNET = 'Internet'
+    OTHER = 'Khac'
 
 
 class Price(BaseModel):
-    label = models.CharField(max_length=100)
+    label = EnumChoiceField(PriceEnum)
     value = models.FloatField()
+    period = models.CharField(max_length=255)
     motel = models.ForeignKey(Motel, related_name='prices', on_delete=models.CASCADE)
 
 
 class Image(BaseModel):
-    source = models.CharField(max_length=255)
+    url = CloudinaryField()
 
     class Meta:
         abstract = True
 
 
 class MotelImage(Image):
-    motel = models.ForeignKey(Motel, related_name='motelimages', on_delete=models.CASCADE)
+    motel = models.ForeignKey(Motel, related_name='motel_images', on_delete=models.CASCADE)
 
 
 class Reservation(BaseModel):

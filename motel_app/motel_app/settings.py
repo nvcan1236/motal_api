@@ -92,7 +92,7 @@ cloudinary.config(
     cloud_name='dbd7vfk12',
     api_key='381798527745373',
     api_secret='mq7kD-ynrQsabeC3zUXc5zHuDIY',
-    api_proxy="http://proxy.server:3128"
+    # api_proxy="http://proxy.server:3128"
 )
 
 # Database
