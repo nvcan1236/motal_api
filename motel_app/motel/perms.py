@@ -22,3 +22,9 @@ class MotelOwnerAuthenticated(IsMotelOwner):
     # Đối tượng user là chủ trọ của đối tượng motel
     def has_object_permission(self, request, view, obj):
         return super().has_permission(request, view) and obj.owner == request.user
+
+
+class HasMotelOwnerAuthenticated(IsMotelOwner):
+    # Đối tượng user là chủ trọ của đối tượng motel
+    def has_object_permission(self, request, view, obj):
+        return super().has_permission(request, view) and obj.motel.owner == request.user

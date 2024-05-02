@@ -6,7 +6,7 @@ from drf_yasg import openapi
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="Course API",
+        title="Motel API",
         default_version='v1',
         description="APIs for Motel App - NACA",
         contact=openapi.Contact(email="2151053005canh@ou.edu.vn"),

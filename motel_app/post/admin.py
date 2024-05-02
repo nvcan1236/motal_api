@@ -1,7 +1,7 @@
 from motel_app.admin import admin_site
 from django.contrib import admin
 from django import forms
-from post.models import Post
+from post.models import PostForRent, PostForLease, Post
 from ckeditor_uploader.widgets import CKEditorUploadingWidget
 
 
@@ -19,5 +19,5 @@ class PostAdmin(admin.ModelAdmin):
 
 
 # Register your models here.
-admin_site.register(Post, PostAdmin)
-
+admin_site.register(PostForRent, PostAdmin)
+admin_site.register(PostForLease, PostAdmin)

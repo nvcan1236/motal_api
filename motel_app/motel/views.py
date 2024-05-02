@@ -1,9 +1,11 @@
+from datetime import datetime
+
 from rest_framework import viewsets, generics, response, status, permissions
 from rest_framework.decorators import action
 
 from motel import serializers, perms
-from motel.models import User, Follow, Motel, MotelImage, Price
-from motel.serializers import PriceSerializer
+from motel.models import User, Follow, Motel, MotelImage, Price, Reservation
+from motel.serializers import PriceSerializer, ImageSerializer
 
 
 class UpdatePartialAPIView(generics.UpdateAPIView):
@@ -23,13 +25,20 @@ class UpdatePartialAPIView(generics.UpdateAPIView):
         return response.Response(serializer.data)
 
 
-# Create your views here.
+class DestroySoftAPIView(generics.DestroyAPIView):
+    def destroy(self, request, *args, **kwargs):
+        image = self.get_object()
+        image.is_active = False
+        image.save()
+        return response.Response(status=status.HTTP_204_NO_CONTENT)
+
+
 class UserViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.RetrieveAPIView):
     serializer_class = serializers.DetailUserSerializer
     queryset = User.objects.filter(is_active=True)
 
     def get_permissions(self):
-        if self.action in ['get_followers', 'get_following', 'follow', 'current_user']:
+        if self.action in ['get_followers', 'get_following', 'follow', 'current_user', 'get_motels']:
             return [permissions.IsAuthenticated()]
 
         if self.action in ['update', 'partial_update']:
@@ -67,7 +76,11 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.RetrieveAPI
 
     @action(methods=['get'], url_path='motels', detail=True)
     def get_motels(self, request, pk):
-        motels = Motel.objects.filter(owner=self.get_object(), is_active=True).all()
+        if request.user.__eq__(self.get_object()):
+            motels = Motel.objects.filter(owner=self.get_object(), is_active=True).all()
+        else:
+            motels = Motel.objects.filter(owner=self.get_object(), is_active=True, approved=True).all()
+
         return response.Response(serializers.MotelSerializer(motels, many=True).data, status.HTTP_200_OK)
 
     @action(methods=['post'], url_path='follow', detail=True)
@@ -90,9 +103,12 @@ class MotelViewSet(viewsets.ViewSet, UpdatePartialAPIView, generics.CreateAPIVie
         if self.action in ['create', ]:
             return [perms.IsMotelOwner()]
 
+        if self.action in ['get_reservation', 'reserve']:
+            return [permissions.IsAuthenticated()]
+
         return [permissions.AllowAny()]
 
-    @action(methods=['post', 'delete'], detail=True, url_path='images')
+    @action(methods=['post'], detail=True, url_path='images')
     def images(self, request, pk):
         if request.method.__eq__('POST'):
             images = request.FILES.getlist('images')
@@ -103,56 +119,62 @@ class MotelViewSet(viewsets.ViewSet, UpdatePartialAPIView, generics.CreateAPIVie
 
             return response.Response(serializers.ImageSerializer(uploaded_images, many=True).data,
                                      status=status.HTTP_200_OK)
-        elif request.method.__eq__('DELETE'):
-            image_id = request.data.get('id')
-            image = MotelImage.objects.get(pk=image_id)
-            image.is_active = False
-            image.save()
-            return response.Response(status=status.HTTP_204_NO_CONTENT)
 
-        return response.Response(status.HTTP_405_METHOD_NOT_ALLOWED)
+        return response.Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
-    @action(methods=['post', 'delete', 'patch'], url_path='prices', detail=True)
+    @action(methods=['post'], url_path='prices', detail=True)
     def prices(self, request, pk):
         if request.method.__eq__('POST'):
             price_data = request.data.copy()
             price_data['motel'] = self.get_object().id
             serializer = PriceSerializer(data=price_data)
-            print(price_data)
 
             if serializer.is_valid():
                 serializer.save()
                 return response.Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
                 return response.Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        elif request.method.__eq__('PATCH'):
-            try:
-                price = Price.objects.get(pk=request.data.get('id'))
-            except Price.DoesNotExist:
-                return response.Response({"message": "Price not found"}, status=status.HTTP_404_NOT_FOUND)
-
-            price_data = request.data.copy()
-
-            serializer = PriceSerializer(price, data=price_data, partial=True)
-
-            if serializer.is_valid():
-                serializer.save()
-                return response.Response(serializer.data, status=status.HTTP_200_OK)
-            else:
-                return response.Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
-            try:
-                price = Price.objects.get(pk=request.data.get('id'))
-            except Price.DoesNotExist:
-                return response.Response({"message": "Price not found"}, status=status.HTTP_404_NOT_FOUND)
-            price.delete()
-            return response.Response(status=status.HTTP_204_NO_CONTENT)
+            return response.Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    @action(url_path='reservations', methods=['get'], detail=False)
+    def get_reservation(self, request):
+        reservations = Reservation.objects.filter(user=request.user, is_active=True)
+        return response.Response(serializers.ReservationSerializer(reservations, many=True).data, status.HTTP_200_OK)
+
+    @action(url_path='reserve', methods=['post'], detail=True)
+    def reserve(self, request, pk):
+        motel = self.get_object()
+        reserved = Reservation.objects.filter(is_active=True, motel=motel,
+                                              expiration__gt=datetime.now()).first()
+
+        if reserved:
+            if reserved.user.__eq__(request.user):
+                reserved.is_active = False
+                reserved.save()
+                return response.Response({"message": "Đã huỷ đặt trước"}, status.HTTP_204_NO_CONTENT)
+            return response.Response({"message": "Trọ đã được đặt trước"}, status.HTTP_400_BAD_REQUEST)
+
+        reservation = Reservation.objects.create(user=request.user, motel=motel)
+        return response.Response(serializers.ReservationSerializer(reservation).data, status.HTTP_201_CREATED)
 
     def destroy(self, request, *args, **kwargs):
         motel = self.get_object()
         motel.is_active = False
         motel.save()
-        return response.Response(status.HTTP_204_NO_CONTENT)
+        return response.Response(status=status.HTTP_204_NO_CONTENT)
 
     serializer_class = serializers.DetailMotelSerializer
-    queryset = Motel.objects.filter(is_active=True).all()
+    queryset = Motel.objects.filter(is_active=True, approved=True).all()
+
+
+class ImageViewSet(viewsets.ViewSet, DestroySoftAPIView):
+    serializer_class = ImageSerializer
+    queryset = MotelImage.objects.filter(is_active=True).all()
+    permission_classes = [perms.HasMotelOwnerAuthenticated]
+
+
+class PriceViewSet(viewsets.ViewSet, DestroySoftAPIView, UpdatePartialAPIView):
+    serializer_class = PriceSerializer
+    queryset = Price.objects.filter(is_active=True).all()
+    permission_classes = [perms.HasMotelOwnerAuthenticated]

@@ -1,6 +1,10 @@
+from datetime import timedelta
+
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
-from motel.models import User, Follow, Motel, MotelImage, Price
+from motel.models import User, Follow, Motel, MotelImage, Price, Reservation
 from cloudinary.models import CloudinaryResource
+
+EXPIRATION_RESERVATION = 3
 
 
 class HaveImageSerializer(ModelSerializer):
@@ -53,8 +57,8 @@ class DetailUserSerializer(UserSerializer):
 class MotelSerializer(ModelSerializer):
     class Meta:
         model = Motel
-        fields = ['id', 'description', 'price', 'max_people', 'ward', 'district', 'city', 'other_address', 'area',
-                  'owner']
+        fields = ['id', 'description', 'price', 'max_people', 'ward',
+                  'district', 'city', 'other_address', 'area', 'owner']
         extra_kwargs = {
             'owner':
                 {'read_only': True},
@@ -75,12 +79,16 @@ class ImageSerializer(MotelSerializer):
 class PriceSerializer(MotelSerializer):
     class Meta:
         model = Price
-        fields = ['id', 'label', 'value', 'period', 'motel']
+        fields = ['id', 'label', 'name', 'value', 'period', 'motel']
 
 
 class DetailMotelSerializer(MotelSerializer):
-    motel_images = ImageSerializer(many=True, read_only=True)
+    images = SerializerMethodField()
     prices = PriceSerializer(many=True, read_only=True)
+
+    def get_motel_images(self, obj):
+        active_images = obj.motel_images.filter(is_active=True)
+        return ImageSerializer(active_images, many=True).data
 
     def create(self, validated_data):
         data = validated_data.copy()
@@ -91,5 +99,17 @@ class DetailMotelSerializer(MotelSerializer):
 
     class Meta:
         model = MotelSerializer.Meta.model
-        fields = MotelSerializer.Meta.fields + ['lat', 'lon', 'motel_images', 'prices']
+        fields = MotelSerializer.Meta.fields + ['lat', 'lon', 'images', 'prices']
         extra_kwargs = MotelSerializer.Meta.extra_kwargs
+
+
+class ReservationSerializer(MotelSerializer):
+    motel = MotelSerializer(many=False, read_only=True)
+    created_date = SerializerMethodField()
+
+    def get_created_date(self, obj):
+        return (obj.created_date).strftime("%Y-%m-%d %H:%M:%S")
+
+    class Meta:
+        model = Reservation
+        fields = ['id', 'motel', 'created_date', 'expiration']

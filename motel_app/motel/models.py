@@ -1,12 +1,16 @@
+from datetime import datetime, timedelta
+
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from enumchoicefield import EnumChoiceField
 from enum import Enum
 from cloudinary.models import CloudinaryField
 
+EXPIRATION_RESERVATION = 3
+
 
 class BaseModel(models.Model):
-    created_date = models.DateField(auto_now_add=True)
+    created_date = models.DateTimeField(auto_now_add=True)
     updated_date = models.DateField(auto_now=True)
     is_active = models.BooleanField(default=True)
 
@@ -24,9 +28,6 @@ class Gender(Enum):
     FEMALE = 'Nu'
     OTHER = 'Khac'
 
-
-# default_avatar = "v1712980191/default-avatar-profile-icon-social-media-user-photo-in-flat-style-vector_uhlwvn.jpg"
-# default=default_avatar
 
 class User(AbstractUser):
     avatar = CloudinaryField()
@@ -59,6 +60,8 @@ class Motel(BaseModel):
     lon = models.CharField(max_length=100)
     lat = models.CharField(max_length=100)
     owner = models.ForeignKey(User, related_name='motels', on_delete=models.CASCADE)
+    is_active = models.BooleanField(default=True)
+    approved = models.BooleanField(default=False)
 
 
 class PriceEnum(Enum):
@@ -70,22 +73,20 @@ class PriceEnum(Enum):
 
 class Price(BaseModel):
     label = EnumChoiceField(PriceEnum)
+    name = models.CharField(max_length=100)
     value = models.FloatField()
     period = models.CharField(max_length=255)
     motel = models.ForeignKey(Motel, related_name='prices', on_delete=models.CASCADE)
 
 
-class Image(BaseModel):
+class MotelImage(BaseModel):
     url = CloudinaryField()
-
-    class Meta:
-        abstract = True
-
-
-class MotelImage(Image):
-    motel = models.ForeignKey(Motel, related_name='motel_images', on_delete=models.CASCADE)
+    motel = models.ForeignKey(Motel, related_name='images', on_delete=models.CASCADE)
 
 
 class Reservation(BaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     motel = models.ForeignKey(Motel, on_delete=models.CASCADE)
+    expiration = models.DateTimeField(null=False,
+                                      default=(datetime.now() + timedelta(days=EXPIRATION_RESERVATION)).strftime(
+                                          "%Y-%m-%d %H:%M:%S"))

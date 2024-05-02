@@ -1,12 +1,12 @@
 import enum
 
+from cloudinary.models import CloudinaryField
 from django.db import models
-from motel.models import BaseModel, Motel, User, Image
+from motel.models import BaseModel, Motel, User
 from ckeditor.fields import RichTextField
 
 
 class Post(BaseModel):
-    title = models.CharField(max_length=255)
     content = RichTextField()
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
 
@@ -15,8 +15,12 @@ class PostForLease(Post):
     motel = models.ForeignKey(Motel, on_delete=models.CASCADE, related_name='posts')
 
 
-class PostImage(Image):
-    post = models.ForeignKey(Post, related_name='images', on_delete=models.CASCADE)
+class PostForRent(Post):
+    ward = models.CharField(max_length=255)
+    district = models.CharField(max_length=255)
+    city = models.CharField(max_length=255)
+    other_address = models.CharField(max_length=255)
+    image = CloudinaryField()
 
 
 class Interaction(BaseModel):
