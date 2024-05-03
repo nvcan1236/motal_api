@@ -1,8 +1,5 @@
-from datetime import timedelta
-
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
 from motel.models import User, Follow, Motel, MotelImage, Price, Reservation
-from cloudinary.models import CloudinaryResource
 
 EXPIRATION_RESERVATION = 3
 
@@ -86,8 +83,8 @@ class DetailMotelSerializer(MotelSerializer):
     images = SerializerMethodField()
     prices = PriceSerializer(many=True, read_only=True)
 
-    def get_motel_images(self, obj):
-        active_images = obj.motel_images.filter(is_active=True)
+    def get_images(self, obj):
+        active_images = obj.images.filter(is_active=True)
         return ImageSerializer(active_images, many=True).data
 
     def create(self, validated_data):
@@ -99,8 +96,14 @@ class DetailMotelSerializer(MotelSerializer):
 
     class Meta:
         model = MotelSerializer.Meta.model
-        fields = MotelSerializer.Meta.fields + ['lat', 'lon', 'images', 'prices']
+        fields = MotelSerializer.Meta.fields + ['furniture', 'lat', 'lon', 'images', 'prices', ]
         extra_kwargs = MotelSerializer.Meta.extra_kwargs
+
+
+class DetailOwnerMotelSerializer(DetailMotelSerializer):
+    class Meta:
+        model = DetailMotelSerializer.Meta.model
+        fields = DetailMotelSerializer.Meta.fields + ['approved']
 
 
 class ReservationSerializer(MotelSerializer):

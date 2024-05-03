@@ -1,8 +1,10 @@
-from rest_framework import viewsets, generics, status, permissions
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import viewsets, generics, status, permissions, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from motel.views import UpdatePartialAPIView, DestroySoftAPIView
+from post import paginators
 from post.models import PostForRent, PostForLease, Post, Comment, Like
 from post.serializers import PostForLeaseSerializer, PostForRentSerializer, PostSerializer, CommentSerializer, \
     BaseCommentSerializer, ReadPostForLeaseSerializer, ReadPostForRentSerializer
@@ -10,7 +12,13 @@ from motel import perms
 
 
 class BasePostViewSet(viewsets.ViewSet, generics.ListCreateAPIView, UpdatePartialAPIView):
-    # pass
+    pagination_class = paginators.PostPaginator
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['__all__']
+    # filterset_fields = ['content']
+    # ordering_fields = ['username', 'email']
+    ordering = ['-created_date']
+
     def create(self, request, *args, **kwargs):
         data = request.data.copy()
         data['user'] = request.user.id
@@ -23,7 +31,8 @@ class BasePostViewSet(viewsets.ViewSet, generics.ListCreateAPIView, UpdatePartia
 
 class PostForLeaseViewSet(BasePostViewSet):
     serializer_class = PostForLeaseSerializer
-    queryset = PostForLease.objects.filter(is_active=True)
+
+    queryset = PostForLease.objects.filter(is_active=True).all()
 
     def get_serializer_class(self):
         if self.action in ["get", "list"]:
@@ -33,7 +42,7 @@ class PostForLeaseViewSet(BasePostViewSet):
 
     def get_permissions(self):
         if self.action in ['partial_update']:
-            return [perms.IsPostOwner()]
+            return [perms.OwnerAuthenticated()]
         elif self.action in ['create']:
             return [perms.IsOwner()]
         return [permissions.AllowAny()]
@@ -41,7 +50,7 @@ class PostForLeaseViewSet(BasePostViewSet):
 
 class PostForRentViewSet(BasePostViewSet):
     serializer_class = PostForRentSerializer
-    queryset = PostForRent.objects.filter(is_active=True)
+    queryset = PostForRent.objects.filter(is_active=True).all()
 
     def get_serializer_class(self):
         if self.action in ["get", "list"]:
@@ -51,7 +60,7 @@ class PostForRentViewSet(BasePostViewSet):
 
     def get_permissions(self):
         if self.action in ['partial_update']:
-            return [perms.IsPostOwner()]
+            return [perms.OwnerAuthenticated()]
         elif self.action in ['create']:
             return [permissions.IsAuthenticated()]
         return [permissions.AllowAny()]

@@ -63,6 +63,9 @@ class Motel(BaseModel):
     is_active = models.BooleanField(default=True)
     approved = models.BooleanField(default=False)
 
+    def __str__(self):
+        return f'Trọ {self.ward} - {self.district} - {self.city} - {self.other_address}'
+
 
 class PriceEnum(Enum):
     WATER = 'Nuoc'

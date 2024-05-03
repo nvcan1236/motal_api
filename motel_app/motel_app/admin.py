@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import path
 from django.template.response import TemplateResponse
+from allauth.socialaccount.models import SocialApp
 
 
 class MyAdminSite(admin.AdminSite):
@@ -39,3 +40,4 @@ class MyAdminSite(admin.AdminSite):
 
 
 admin_site = MyAdminSite(name='myadminsite')
+admin_site.register(SocialApp)

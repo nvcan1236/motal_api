@@ -1,9 +1,10 @@
 from datetime import datetime
 
-from rest_framework import viewsets, generics, response, status, permissions
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import viewsets, generics, response, status, permissions, filters
 from rest_framework.decorators import action
 
-from motel import serializers, perms
+from motel import serializers, perms, paginators
 from motel.models import User, Follow, Motel, MotelImage, Price, Reservation
 from motel.serializers import PriceSerializer, ImageSerializer
 
@@ -77,11 +78,12 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.RetrieveAPI
     @action(methods=['get'], url_path='motels', detail=True)
     def get_motels(self, request, pk):
         if request.user.__eq__(self.get_object()):
+
             motels = Motel.objects.filter(owner=self.get_object(), is_active=True).all()
         else:
             motels = Motel.objects.filter(owner=self.get_object(), is_active=True, approved=True).all()
 
-        return response.Response(serializers.MotelSerializer(motels, many=True).data, status.HTTP_200_OK)
+        return response.Response(serializers.DetailOwnerMotelSerializer(motels, many=True).data, status.HTTP_200_OK)
 
     @action(methods=['post'], url_path='follow', detail=True)
     def follow(self, request, pk):
@@ -95,7 +97,18 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.RetrieveAPI
         return response.Response(status=status.HTTP_200_OK)
 
 
-class MotelViewSet(viewsets.ViewSet, UpdatePartialAPIView, generics.CreateAPIView, generics.RetrieveDestroyAPIView):
+class MotelViewSet(viewsets.ViewSet,
+                   UpdatePartialAPIView,
+                   generics.ListCreateAPIView,
+                   generics.RetrieveDestroyAPIView):
+    queryset = Motel.objects.filter(is_active=True, approved=True).all()
+    pagination_class = paginators.MotelPaginator
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['price', 'ward', 'district', 'city', 'other_address', 'area', 'description']
+    filterset_fields = ['price', 'ward', 'district', 'city', 'other_address', 'area']
+    ordering_fields = ['price', 'area']
+    ordering = ['price']
+
     def get_permissions(self):
         if self.action in ['partial_update', 'images', 'destroy', 'prices']:
             return [perms.MotelOwnerAuthenticated()]
@@ -107,6 +120,11 @@ class MotelViewSet(viewsets.ViewSet, UpdatePartialAPIView, generics.CreateAPIVie
             return [permissions.IsAuthenticated()]
 
         return [permissions.AllowAny()]
+
+    def get_serializer_class(self):
+        if self.action.__eq__('list'):
+            return serializers.MotelSerializer
+        return serializers.DetailMotelSerializer
 
     @action(methods=['post'], detail=True, url_path='images')
     def images(self, request, pk):
@@ -163,9 +181,6 @@ class MotelViewSet(viewsets.ViewSet, UpdatePartialAPIView, generics.CreateAPIVie
         motel.is_active = False
         motel.save()
         return response.Response(status=status.HTTP_204_NO_CONTENT)
-
-    serializer_class = serializers.DetailMotelSerializer
-    queryset = Motel.objects.filter(is_active=True, approved=True).all()
 
 
 class ImageViewSet(viewsets.ViewSet, DestroySoftAPIView):

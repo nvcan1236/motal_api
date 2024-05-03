@@ -13,13 +13,14 @@ schema_view = get_schema_view(
         license=openapi.License(name="Nguyễn Văn Cảnh @ 2024"),
     ),
     public=True,
-    permission_classes=[permissions.AllowAny,],
+    permission_classes=[permissions.AllowAny, ],
 )
 
 urlpatterns = [
     path('admin/', admin_site.urls),
     path('', include('motel.urls')),
     path('post/', include('post.urls')),
+    path('api/auth/', include('authentication.urls')),
     re_path(r'^ckeditor/',
             include('ckeditor_uploader.urls')),
     path('o/', include('oauth2_provider.urls',
@@ -33,5 +34,10 @@ urlpatterns = [
     re_path(r'^redoc/$',
             schema_view.with_ui('redoc', cache_timeout=0),
             name='schema-redoc'),
-
+    path('accounts/', include('allauth.urls')),
 ]
+
+SITE_ID = 2
+
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
