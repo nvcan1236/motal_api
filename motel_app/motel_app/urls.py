@@ -20,7 +20,7 @@ urlpatterns = [
     path('admin/', admin_site.urls),
     path('', include('motel.urls')),
     path('post/', include('post.urls')),
-    path('api/auth/', include('authentication.urls')),
+    # path('api/auth/', include('authentication.urls')),
     re_path(r'^ckeditor/',
             include('ckeditor_uploader.urls')),
     path('o/', include('oauth2_provider.urls',

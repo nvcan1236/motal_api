@@ -21,6 +21,7 @@ class MyAdminSite(admin.AdminSite):
     def post_stats_view(self, request):
         return TemplateResponse(request, 'admin/post-stats.html', {})
 
+
     def get_app_list(self, request, app_label=None):
         return super().get_app_list(request) + [
             {

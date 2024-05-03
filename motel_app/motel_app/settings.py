@@ -1,6 +1,5 @@
 SITE_ID = 1
 from pathlib import Path
-import cloudinary
 import os
 from pathlib import Path
 from dotenv import load_dotenv
@@ -95,6 +94,7 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
 }
+import cloudinary
 
 cloudinary.config(
     cloud_name='dbd7vfk12',
