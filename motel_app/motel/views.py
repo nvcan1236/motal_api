@@ -162,7 +162,7 @@ class MotelViewSet(viewsets.ViewSet,
     def create(self, request, *args, **kwargs):
         serializer = WriteMotelSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
-            # serializer.save()
+            serializer.save()
             context = {
                 'user': self.request.user,
                 'motel': serializer.data
