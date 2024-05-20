@@ -1,4 +1,98 @@
 {% extends "admin/base_site.html" %}
+{% block extrahead %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+          crossorigin="anonymous">
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        window.onload = function () {
+            google.charts.load('current', {'packages': ['bar', 'corechart']});
+            google.charts.setOnLoadCallback(drawChart);
+
+            function drawChart() {
+                let chartData = [['Tháng', 'Số trọ đăng ký', 'Số trọ được duyệt']]
+                {% for i in stats %}
+                    chartData.push(['{{ i.month }}', {{ i.count }}, {{ i.approved_count }}])
+                {% endfor %}
+                var data = google.visualization.arrayToDataTable(chartData);
+                var options = {
+                    chart: {
+                        title: 'Số trọ đăng ký theo từng tháng'
+                    }
+                };
+                var chart = new google.charts.Bar(document.getElementById('barchart_material'));
+                chart.draw(data, google.charts.Bar.convertOptions(options));
+
+                {#Chart 2#}
+                let priceChartData = [['Khoảng giá', 'Số lượng']]
+                {% for i in price_stats %}
+                    priceChartData.push(['{{ i.price_range }}', {{ i.count }}])
+                {% endfor %}
+                var priceData = google.visualization.arrayToDataTable(priceChartData);
+                var priceOptions = {
+                    title: 'Thống kê trọ theo khoảng giá (VNĐ)'
+                };
+                var priceChart = new google.visualization.PieChart(document.getElementById('piechart'));
+                priceChart.draw(priceData, priceOptions);
+
+                {#    Chart 3#}
+                let areaChartData = [['Khoảng diện tích', 'Số lượng']]
+                {% for i in area_stats %}
+                    areaChartData.push(['{{ i.area_range }}', {{ i.count }}])
+                {% endfor %}
+                var areaData = google.visualization.arrayToDataTable(areaChartData);
+                var areaOptions = {
+                    title: 'Thống kê trọ theo diện tích (m3)'
+                };
+                var areaChart = new google.visualization.PieChart(document.getElementById('areaChart'));
+                areaChart.draw(areaData, areaOptions);
+            }
+        }
+    </script>
+{% endblock %}
 {% block content %}
-    <h1>MOTEL STATS</h1>
+    <div class="container">
+        <h1>MOTEL STATS</h1>
+
+        <div class="row mt-5">
+            <div class="col-md-4 col-12">
+                <h5>Trọ dùng đăng kí mới</h5>
+                <div class="d-flex flex-wrap gap-1 mt-4 justify-content-between">
+                    <div class="alert-success py-3 text-center rounded" style="width: 200px">
+                        <p class="fw-bold">Trọ đăng kí</p>
+                        <span class="fs-2 fw-bold">{{ new_motel_count }}</span>
+                    </div>
+                    <div class="alert-success  py-3 text-center rounded" style="width: 200px">
+                        <p class="fw-bold">Trọ được duyệt</p>
+                        <span class="fs-2 fw-bold">{{ new_approved_motel_count }}</span>
+                    </div>
+                </div>
+
+                <h5 class="mt-5">Tổng số trọ</h5>
+                <div class="d-flex flex-wrap gap-1 mt-4 justify-content-between">
+                    <div class="alert-success py-3 text-center rounded" style="width: 200px">
+                        <p class="fw-bold">Tổng số trọ đăng ký</p>
+                        <span class="fs-2 fw-bold">{{ motel_count }}</span>
+                    </div>
+                    <div class="alert-success  py-3 text-center rounded" style="width: 200px">
+                        <p class="fw-bold">Tổng số trọ được duyệt</p>
+                        <span class="fs-2 fw-bold">{{ approved_count }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8 col-12 ">
+                <div class="row ps-5">
+                    <div id="barchart_material" style="width: 100%; height: 400px;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-5">
+            <div class="col-12 col-md-6">
+                <div id="piechart" style="height: 400px;"></div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div id="areaChart" style="height: 400px;"></div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

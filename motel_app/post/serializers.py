@@ -1,12 +1,13 @@
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
 
-from motel.serializers import MotelSerializer, UserSerializer, HaveImageSerializer
-from post.models import Post, PostForLease, PostForRent, Like, Comment, User
+from motel.serializers import UserSerializer, HaveImageSerializer, DetailMotelSerializer
+from post.models import Post, PostForLease, PostForRent, Like, Comment
 
 
 class PostSerializer(ModelSerializer):
     like_count = SerializerMethodField()
     comment_count = SerializerMethodField()
+    liked = SerializerMethodField()
 
     def get_like_count(self, obj):
         return Like.objects.filter(is_active=True, post=obj).count()
@@ -14,10 +15,15 @@ class PostSerializer(ModelSerializer):
     def get_comment_count(self, obj):
         return Comment.objects.filter(is_active=True, post=obj).count()
 
+    def get_liked(self, obj):
+        if self.context['request'].user.id:
+            return Like.objects.filter(user=self.context['request'].user, post=obj).first() is not None
+        return False
+
     class Meta:
         model = Post
         fields = ['id', 'content', 'user', 'created_date',
-                  'like_count', 'comment_count']
+                  'like_count', 'comment_count', 'liked']
 
 
 class PostForLeaseSerializer(PostSerializer):
@@ -27,7 +33,7 @@ class PostForLeaseSerializer(PostSerializer):
 
 
 class ReadPostForLeaseSerializer(PostForLeaseSerializer):
-    motel = MotelSerializer(read_only=True)
+    motel = DetailMotelSerializer(read_only=True)
     user = UserSerializer(read_only=True)
 
 
@@ -44,7 +50,7 @@ class ReadPostForRentSerializer(PostForRentSerializer):
 class BaseCommentSerializer(ModelSerializer):
     class Meta:
         model = Comment
-        fields = ['id', 'content', 'user', 'created_date', 'post']
+        fields = ['id', 'content', 'user', 'created_date', 'post', 'reply_for']
 
 
 class CommentSerializer(BaseCommentSerializer):

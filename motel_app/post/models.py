@@ -25,17 +25,19 @@ class PostForRent(Post):
 
 class Interaction(BaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+
 
     class Meta:
         abstract = True
 
 
 class Like(Interaction):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='likes')
     class Meta:
         unique_together = ('user', 'post')
 
 
 class Comment(Interaction):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
     content = models.TextField()
-    reply_for = models.ForeignKey('self', related_name='replies', on_delete=models.CASCADE)
+    reply_for = models.ForeignKey('self', related_name='replies', on_delete=models.CASCADE, null=True)

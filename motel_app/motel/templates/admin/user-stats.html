@@ -1,0 +1,93 @@
+{% extends "admin/base_site.html" %}
+{% block extrahead %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+          crossorigin="anonymous">
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        window.onload = function () {
+            google.charts.load('current', {'packages': ['corechart']});
+
+            google.charts.setOnLoadCallback(drawChart);
+
+            const chartData = [['Tháng', 'Số người thuê', 'Số chủ trọ', 'Tổng']]
+
+            let d = []
+            {% for month, role_counts in stats.items %}
+                d=[]
+                d[0] = '{{ month }}'
+                {% if role_counts.tenant != None %}
+                    d[1] = {{ role_counts.tenant }}
+                        {% else %}
+                        d[1] = 0
+                {% endif %}
+
+                {% if role_counts.owner != None %}
+                    d[2] = {{ role_counts.owner }}
+                        {% else %}
+                        d[2] = 0
+                {% endif %}
+                d[3]=d[1]+d[2]
+                chartData.push(d)
+            {% endfor %}
+
+            function drawChart() {
+                var data = google.visualization.arrayToDataTable(chartData);
+
+                var options = {
+                    title: 'Số người dùng đăng kí mới hàng tháng',
+                    legend: {position: 'right'},
+                    height: 400,
+                };
+
+                var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
+
+                chart.draw(data, options);
+            }
+        }
+    </script>
+{% endblock %}
+{% block content %}
+
+
+    <div class="container">
+        <h1>USER STATS</h1>
+
+        <div class="row mt-5">
+            <div class="col-md-4 col-12">
+                <h5>Người dùng đăng kí mới</h5>
+                <div class="d-flex flex-wrap gap-1 mt-4 justify-content-between">
+                    <div class="alert-success py-3 text-center rounded" style="width: 120px">
+                        <p class="fw-bold">Tổng</p>
+                        <span class="fs-2 fw-bold">{{ new_user_count }}</span>
+                    </div>
+                    <div class="alert-success  py-3 text-center rounded" style="width: 120px">
+                        <p class="fw-bold">Chủ trọ</p>
+                        <span class="fs-2 fw-bold">{{ new_owner_count }}</span>
+                    </div>
+                    <div class="alert-success py-3 text-center rounded" style="width: 120px">
+                        <p class="fw-bold">Người thuê</p>
+                        <span class="fs-2 fw-bold">{{ new_tenant_count }}</span>
+                    </div>
+                </div>
+
+                <h5 class="mt-5">Tổng số ngưởi dùng</h5>
+                <div class="d-flex flex-wrap gap-1 mt-4 justify-content-between">
+                    <div class="alert-success py-3 text-center rounded" style="width: 120px">
+                        <p class="fw-bold">Tổng</p>
+                        <span class="fs-2 fw-bold">{{ user_count }}</span></div>
+                    <div class="alert-success  py-3 text-center rounded" style="width: 120px">
+                        <p class="fw-bold">Chủ trọ</p>
+                        <span class="fs-2 fw-bold">{{ owner_count }}</span></div>
+                    <div class="alert-success py-3 text-center rounded" style="width: 120px">
+                        <p class="fw-bold">Người thuê</p>
+                        <span class="fs-2 fw-bold">{{ tenant_count }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8 col-12">
+                <div id="curve_chart"></div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

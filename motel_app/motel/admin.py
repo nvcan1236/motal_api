@@ -1,6 +1,8 @@
 from django.contrib import admin
+
 from motel_app.admin import admin_site
 from django.utils.html import mark_safe
+
 
 from motel.models import Motel, User, MotelImage
 from cloudinary.models import CloudinaryResource

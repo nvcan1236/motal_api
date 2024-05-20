@@ -1,3 +1,4 @@
+from django.http import QueryDict
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, generics, status, permissions, filters
 from rest_framework.decorators import action
@@ -15,13 +16,15 @@ class BasePostViewSet(viewsets.ViewSet, generics.ListCreateAPIView, UpdatePartia
     pagination_class = paginators.PostPaginator
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['__all__']
-    # filterset_fields = ['content']
-    # ordering_fields = ['username', 'email']
     ordering = ['-created_date']
 
     def create(self, request, *args, **kwargs):
-        data = request.data.copy()
+        data = QueryDict('', mutable=True)
+        data.update(request.data)
+
+        # Thêm trường 'user' vào request.data
         data['user'] = request.user.id
+
         serializer = self.get_serializer(data=data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
@@ -31,7 +34,6 @@ class BasePostViewSet(viewsets.ViewSet, generics.ListCreateAPIView, UpdatePartia
 
 class PostForLeaseViewSet(BasePostViewSet):
     serializer_class = PostForLeaseSerializer
-
     queryset = PostForLease.objects.filter(is_active=True).all()
 
     def get_serializer_class(self):

@@ -2,9 +2,6 @@ SITE_ID = 1
 from pathlib import Path
 import os
 from pathlib import Path
-from dotenv import load_dotenv
-
-load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -136,7 +133,9 @@ DATABASES = {
 #     }
 # }
 # Mật khẩu database online: Supabase@123
+from dotenv import load_dotenv
 
+load_dotenv()
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'SCOPE': [
@@ -213,3 +212,12 @@ ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_EMAIL_VERIFICATION = 'none'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'nvcan1236.test@gmail.com'
+EMAIL_HOST_PASSWORD = 'yqgwpuwygngcnslw'
+DEFAULT_FROM_EMAIL = 'nvcan1236.test@gmail.com'
+DEFAULT_TO_EMAIL = 'nvcan1236.test@gmail.com'

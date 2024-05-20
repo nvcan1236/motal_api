@@ -12,14 +12,23 @@ class HaveImageSerializer(ModelSerializer):
 
 
 class UserSerializer(ModelSerializer):
+    followed = SerializerMethodField()
+
     def to_representation(self, instance):
         rep = super().to_representation(instance)
         rep['avatar'] = instance.avatar.url
         return rep
 
+    def get_followed(self, obj):
+        if self.context.get('request') and self.context['request'].user.id:
+            print(self.context['request'].user)
+            return Follow.objects.filter(follower=self.context['request'].user, following=obj,
+                                         is_active=True).first() is not None
+        return False
+
     class Meta:
         model = User
-        fields = ['id', 'username', 'avatar', 'first_name', 'last_name', 'user_role']
+        fields = ['id', 'username', 'avatar', 'first_name', 'last_name', 'user_role', 'followed']
 
 
 class DetailUserSerializer(UserSerializer):
@@ -81,22 +90,35 @@ class PriceSerializer(MotelSerializer):
 
 class DetailMotelSerializer(MotelSerializer):
     images = SerializerMethodField()
-    prices = PriceSerializer(many=True, read_only=True)
+    prices = SerializerMethodField()
 
     def get_images(self, obj):
         active_images = obj.images.filter(is_active=True)
         return ImageSerializer(active_images, many=True).data
+
+    def get_prices(self, obj):
+        active_prices = obj.prices.filter(is_active=True)
+        return PriceSerializer(active_prices, many=True).data
+
+    class Meta:
+        model = MotelSerializer.Meta.model
+        fields = MotelSerializer.Meta.fields + ['furniture', 'lat', 'lon', 'images', 'prices', ]
+        extra_kwargs = MotelSerializer.Meta.extra_kwargs
+
+
+class WriteMotelSerializer(MotelSerializer):
 
     def create(self, validated_data):
         data = validated_data.copy()
         motel = Motel(**data)
         motel.owner = self.context['request'].user
         motel.save()
+
         return motel
 
     class Meta:
         model = MotelSerializer.Meta.model
-        fields = MotelSerializer.Meta.fields + ['furniture', 'lat', 'lon', 'images', 'prices', ]
+        fields = MotelSerializer.Meta.fields + ['furniture', 'lat', 'lon']
         extra_kwargs = MotelSerializer.Meta.extra_kwargs
 
 

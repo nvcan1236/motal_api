@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông tin nhà trọ</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px 40px;
+            border: 1px solid #ccc;
+            border-radius: 12px;
+            background-color: #e8f1f3;
+        }
+        h2, h3 {
+            color: #333;
+        }
+        p {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>{{ owner }} vừa đăng ký một trọ mới!! Khám phá ngay!!</h2>
+        <h3>Thông tin nhà trọ</h3>
+        <p><strong>Diện tích:</strong> {{ area }}</p>
+        <p><strong>Địa chỉ:</strong> {{ address }}</p>
+        <p><strong>Giá thuê:</strong> {{ price }}</p>
+        <p><strong>Mô tả:</strong> {{ description }}</p>
+        <p><strong>Nội thất:</strong> {{ furniture }}</p>
+    </div>
+</body>
+</html>

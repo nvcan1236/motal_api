@@ -1,4 +1,104 @@
 {% extends "admin/base_site.html" %}
+{% block extrahead %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+          crossorigin="anonymous">
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        window.onload = function () {
+            google.charts.load('current', {'packages': ['bar']});
+            google.charts.setOnLoadCallback(drawChart);
+
+            function drawChart() {
+                let postData = [["Tháng", "Bài cho thuê", "Bài tìm trọ"]]
+                {% for item in post_for_lease_stats %}
+                    postData.push(['{{ item.month }}', {{item.count}}, {{ item.count_pfr }}])
+                {% endfor %}
+                var data = google.visualization.arrayToDataTable(postData);
+
+                var options = {
+                    chart: {
+                        title: 'Số bài đăng hàng tháng',
+                        subtitle: 'Bài tìm trọ, Bài cho thuê',
+                    },
+                    height: 400
+                };
+
+                var chart = new google.charts.Bar(document.getElementById('columnchart_material'));
+
+                chart.draw(data, google.charts.Bar.convertOptions(options));
+
+                {#    Chart 2#}
+                google.charts.load('current', {'packages': ['corechart']});
+                google.charts.setOnLoadCallback(drawVisualization);
+
+                function drawVisualization() {
+
+                    let mixData = [["Tháng", "Số bài đăng", "Số comment", "Số like", "Lượt tương tác trung bình"]]
+                    {% for item in interaction_stats %}
+                        mixData.push(['{{ item.month }}', {{item.post_count}}, {{ item.comment_count }},
+                            {{ item.like_count }}])
+                    {% endfor %}
+
+                    mixData.forEach(item => {
+                        if (item[4] == null) {
+                            item[4] = (item[2] + item[3]) / item[1]
+                        }
+                    })
+
+                    var mixChartData = google.visualization.arrayToDataTable(mixData);
+
+                    var mixChartOptions = {
+                        title: 'Thống kê tương tác bài đăng',
+                        vAxis: {title: 'Số lượng'},
+                        hAxis: {title: 'Tháng'},
+                        seriesType: 'bars',
+                        series: {3: {type: 'line'}},
+                        height: 400,
+                    };
+
+                    var chart = new google.visualization.ComboChart(document.getElementById('chart_div'));
+                    chart.draw(mixChartData, mixChartOptions);
+                }
+            }
+        }
+    </script>
+{% endblock %}
 {% block content %}
-    <h1>POST STATS</h1>
+    <div class="container">
+        <h1>POST STATS</h1>
+        <div class="row mt-5">
+            <div class="col-md-4 col-12">
+                <h5>Số bài đăng mới mới</h5>
+                <div class="d-flex flex-wrap gap-1 mt-4 justify-content-between">
+                    <div class="alert-success py-3 text-center rounded" style="width: 200px">
+                        <p class="fw-bold">Bài tìm trọ</p>
+                        <span class="fs-2 fw-bold">{{ new_post_for_rent_count }}</span>
+                    </div>
+                    <div class="alert-success  py-3 text-center rounded" style="width: 200px">
+                        <p class="fw-bold">Bài cho thuê</p>
+                        <span class="fs-2 fw-bold">{{ new_post_for_lease_count }}</span>
+                    </div>
+
+                </div>
+
+                <h5 class="mt-5">Tổng số bài đăng</h5>
+                <div class="d-flex flex-wrap gap-1 mt-4 justify-content-between">
+                    <div class="alert-success py-3 text-center rounded" style="width: 200px">
+                        <p class="fw-bold">Bài tìm trọ</p>
+                        <span class="fs-2 fw-bold">{{ post_for_rent_count }}</span></div>
+                    <div class="alert-success  py-3 text-center rounded" style="width: 200px">
+                        <p class="fw-bold">Bài cho thuê</p>
+                        <span class="fs-2 fw-bold">{{ post_for_lease_count }}</span></div>
+
+                </div>
+            </div>
+            <div class="col-md-8 col-12 ps-5">
+                <div id="columnchart_material"></div>
+                <div class="mt-5">
+                    <div id="chart_div"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

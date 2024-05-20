@@ -3,10 +3,14 @@ from datetime import datetime
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, generics, response, status, permissions, filters
 from rest_framework.decorators import action
+from django.core.mail import send_mail
 
 from motel import serializers, perms, paginators
-from motel.models import User, Follow, Motel, MotelImage, Price, Reservation
-from motel.serializers import PriceSerializer, ImageSerializer
+from motel.models import User, Follow, Motel, MotelImage, Price, Reservation, UserRole
+from motel.utils import send_motel_news_email
+from post.models import PostForRent, PostForLease
+from post.serializers import ReadPostForRentSerializer, ReadPostForLeaseSerializer
+from motel.serializers import PriceSerializer, ImageSerializer, WriteMotelSerializer
 
 
 class UpdatePartialAPIView(generics.UpdateAPIView):
@@ -39,7 +43,7 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.RetrieveAPI
     queryset = User.objects.filter(is_active=True)
 
     def get_permissions(self):
-        if self.action in ['get_followers', 'get_following', 'follow', 'current_user', 'get_motels']:
+        if self.action in ['get_followers', 'get_following', 'follow', 'current_user', 'get_motels', 'get_posts']:
             return [permissions.IsAuthenticated()]
 
         if self.action in ['update', 'partial_update']:
@@ -78,7 +82,6 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.RetrieveAPI
     @action(methods=['get'], url_path='motels', detail=True)
     def get_motels(self, request, pk):
         if request.user.__eq__(self.get_object()):
-
             motels = Motel.objects.filter(owner=self.get_object(), is_active=True).all()
         else:
             motels = Motel.objects.filter(owner=self.get_object(), is_active=True, approved=True).all()
@@ -96,12 +99,24 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.RetrieveAPI
 
         return response.Response(status=status.HTTP_200_OK)
 
+    @action(url_path='post', methods=['get'], detail=True)
+    def get_posts(self, request, pk):
+        user = self.get_object()
+
+        if user.user_role.__eq__(UserRole.TENANT):
+            post = PostForRent.objects.filter(user=user, is_active=True)
+            return response.Response(
+                ReadPostForRentSerializer(post, many=True, context={'request': request}).data, status.HTTP_200_OK)
+        elif user.user_role.__eq__(UserRole.MOTEL_OWNER):
+            post = PostForLease.objects.filter(user=user, is_active=True)
+            return response.Response(
+                ReadPostForLeaseSerializer(post, many=True, context={'request': request}).data, status.HTTP_200_OK)
+
 
 class MotelViewSet(viewsets.ViewSet,
                    UpdatePartialAPIView,
                    generics.ListCreateAPIView,
                    generics.RetrieveDestroyAPIView):
-    queryset = Motel.objects.filter(is_active=True, approved=True).all()
     pagination_class = paginators.MotelPaginator
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['price', 'ward', 'district', 'city', 'other_address', 'area', 'description']
@@ -126,9 +141,39 @@ class MotelViewSet(viewsets.ViewSet,
             return serializers.MotelSerializer
         return serializers.DetailMotelSerializer
 
+    def get_queryset(self):
+        min_price = self.request.query_params.get('min_price', None)
+        max_price = self.request.query_params.get('max_price', None)
+
+        if self.action in ['partial_update', 'images', 'destroy', 'prices']:
+            queryset = Motel.objects.filter(is_active=True)
+        else:
+            queryset = Motel.objects.filter(is_active=True, approved=True)
+
+        if min_price is not None and max_price is not None:
+            queryset = queryset.filter(price__gte=min_price, price__lte=max_price)
+        elif min_price is not None:
+            queryset = queryset.filter(price__gte=min_price)
+        elif max_price is not None:
+            queryset = queryset.filter(price__lte=max_price)
+
+        return queryset
+
+    def create(self, request, *args, **kwargs):
+        serializer = WriteMotelSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            # serializer.save()
+            context = {
+                'user': self.request.user,
+                'motel': serializer.data
+            }
+            send_motel_news_email(context)
+            return response.Response(serializer.data, status=status.HTTP_201_CREATED)
+
     @action(methods=['post'], detail=True, url_path='images')
     def images(self, request, pk):
         if request.method.__eq__('POST'):
+
             images = request.FILES.getlist('images')
             uploaded_images = []
             for image in images:
@@ -154,11 +199,6 @@ class MotelViewSet(viewsets.ViewSet,
                 return response.Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
             return response.Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    @action(url_path='reservations', methods=['get'], detail=False)
-    def get_reservation(self, request):
-        reservations = Reservation.objects.filter(user=request.user, is_active=True)
-        return response.Response(serializers.ReservationSerializer(reservations, many=True).data, status.HTTP_200_OK)
 
     @action(url_path='reserve', methods=['post'], detail=True)
     def reserve(self, request, pk):

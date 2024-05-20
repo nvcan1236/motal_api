@@ -3,6 +3,9 @@ from django.urls import path
 from django.template.response import TemplateResponse
 from allauth.socialaccount.models import SocialApp
 
+import motel.utils
+import post.utils
+
 
 class MyAdminSite(admin.AdminSite):
     site_header = 'QUẢN LÝ HỆ THỐNG TÌM KIẾM TRỌ NACA'
@@ -13,14 +16,21 @@ class MyAdminSite(admin.AdminSite):
         return [
             path('motel-stats/', self.motel_stats_view),
             path('post-stats/', self.post_stats_view),
+            path('user-stats/', self.user_stats_view),
         ] + super().get_urls()
 
     def motel_stats_view(self, request):
-        return TemplateResponse(request, 'admin/motel-stats.html', {})
+        stats = motel.utils.get_motel_stats()
+        return TemplateResponse(request, 'admin/motel-stats.html', {**stats})
 
     def post_stats_view(self, request):
-        return TemplateResponse(request, 'admin/post-stats.html', {})
+        stats = post.utils.get_post_stats()
+        return TemplateResponse(request, 'admin/post-stats.html', {**stats})
 
+    def user_stats_view(self, request):
+        stats = motel.utils.get_user_stats()
+        return TemplateResponse(request, 'admin/user-stats.html',
+                                {**stats})
 
     def get_app_list(self, request, app_label=None):
         return super().get_app_list(request) + [
@@ -29,11 +39,18 @@ class MyAdminSite(admin.AdminSite):
                 'models': [
                     {
                         'name': 'Motel Stats',
-                        'admin_url': '/admin/motel-stats/'
+                        'admin_url': '/admin/motel-stats/',
+                        "view_only": True,
                     },
                     {
                         'name': 'Post Stats',
-                        'admin_url': '/admin/post-stats/'
+                        'admin_url': '/admin/post-stats/',
+                        "view_only": True,
+                    },
+                    {
+                        'name': 'User Stats',
+                        'admin_url': '/admin/user-stats/',
+                        "view_only": True,
                     },
                 ]
             }
