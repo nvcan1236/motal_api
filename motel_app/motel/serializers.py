@@ -21,7 +21,6 @@ class UserSerializer(ModelSerializer):
 
     def get_followed(self, obj):
         if self.context.get('request') and self.context['request'].user.id:
-            print(self.context['request'].user)
             return Follow.objects.filter(follower=self.context['request'].user, following=obj,
                                          is_active=True).first() is not None
         return False

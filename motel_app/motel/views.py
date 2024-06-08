@@ -119,7 +119,7 @@ class MotelViewSet(viewsets.ViewSet,
                    generics.RetrieveDestroyAPIView):
     pagination_class = paginators.MotelPaginator
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ['price', 'ward', 'district', 'city', 'other_address', 'area', 'description']
+    search_fields = ['price', 'ward', 'district', 'city', 'other_address', 'description']
     filterset_fields = ['price', 'ward', 'district', 'city', 'other_address', 'area']
     ordering_fields = ['price', 'area']
     ordering = ['price']
@@ -144,24 +144,40 @@ class MotelViewSet(viewsets.ViewSet,
     def get_queryset(self):
         min_price = self.request.query_params.get('min_price', None)
         max_price = self.request.query_params.get('max_price', None)
+        min_area = self.request.query_params.get('min_area', None)
+        max_area = self.request.query_params.get('max_area', None)
+        lat = self.request.query_params.get('lat', None)
+        lon = self.request.query_params.get('lon', None)
 
         if self.action in ['partial_update', 'images', 'destroy', 'prices']:
             queryset = Motel.objects.filter(is_active=True)
         else:
             queryset = Motel.objects.filter(is_active=True, approved=True)
 
-        if min_price is not None and max_price is not None:
-            queryset = queryset.filter(price__gte=min_price, price__lte=max_price)
-        elif min_price is not None:
+        if min_price and max_price:
+            queryset = queryset.filter(price__range=(min_price, max_price))
+        elif min_price:
             queryset = queryset.filter(price__gte=min_price)
-        elif max_price is not None:
+        elif max_price:
             queryset = queryset.filter(price__lte=max_price)
+
+        if min_area and max_area:
+            queryset = queryset.filter(area__range=(min_area, max_area))
+        elif min_price:
+            queryset = queryset.filter(area__gte=min_area)
+        elif max_price:
+            queryset = queryset.filter(area__lte=max_area)
+
+        if lat and lon:
+            lat = float(lat)
+            lon = float(lon)
+            queryset = queryset.filter(lat__range=(lat - 0.03, lat + 0.03), lon__range=(lon - 0.03, lon + 0.03))
 
         return queryset
 
     def create(self, request, *args, **kwargs):
         serializer = WriteMotelSerializer(data=request.data, context={'request': request})
-        if serializer.is_valid():
+        if serializer.is_valid(raise_exception=True):
             serializer.save()
             context = {
                 'user': self.request.user,
@@ -169,6 +185,8 @@ class MotelViewSet(viewsets.ViewSet,
             }
             send_motel_news_email(context)
             return response.Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return response.Response(status=status.HTTP_400_BAD_REQUEST)
 
     @action(methods=['post'], detail=True, url_path='images')
     def images(self, request, pk):

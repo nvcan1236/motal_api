@@ -17,7 +17,10 @@ class PostSerializer(ModelSerializer):
 
     def get_liked(self, obj):
         if self.context['request'].user.id:
-            return Like.objects.filter(user=self.context['request'].user, post=obj).first() is not None
+            like = Like.objects.filter(user=self.context['request'].user, post=obj).first()
+            if like:
+                return like.is_active
+
         return False
 
     class Meta:
