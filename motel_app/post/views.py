@@ -4,6 +4,7 @@ from rest_framework import viewsets, generics, status, permissions, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from motel.models import UserRole
 from motel.views import UpdatePartialAPIView, DestroySoftAPIView
 from post import paginators
 from post.models import PostForRent, PostForLease, Post, Comment, Like
@@ -32,7 +33,7 @@ class BasePostViewSet(viewsets.ViewSet, generics.ListCreateAPIView, UpdatePartia
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-class PostForLeaseViewSet(BasePostViewSet):
+class PostForLeaseViewSet(BasePostViewSet, generics.RetrieveAPIView):
     serializer_class = PostForLeaseSerializer
     queryset = PostForLease.objects.filter(is_active=True).all()
 
@@ -50,7 +51,7 @@ class PostForLeaseViewSet(BasePostViewSet):
         return [permissions.AllowAny()]
 
 
-class PostForRentViewSet(BasePostViewSet):
+class PostForRentViewSet(BasePostViewSet, generics.RetrieveAPIView):
     serializer_class = PostForRentSerializer
     queryset = PostForRent.objects.filter(is_active=True).all()
 

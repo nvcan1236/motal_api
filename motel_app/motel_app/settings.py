@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     'django.contrib.sites',
     'django_filters',
+    'vnpay',
 
     # google authentication config
     # 'auth_app',
@@ -116,23 +117,12 @@ DATABASES = {
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'moteldb',
-#         'USER': 'CanhNguyen',
-#         'PASSWORD': 'Myca@1236',
-#         'HOST': 'CanhNguyen.mysql.pythonanywhere-services.com'
-#     }
-# }
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
 #         'NAME': 'motel$moteldb',
 #         'USER': 'motel',
 #         'PASSWORD': 'Myca@1236',
 #         'HOST': 'motel.mysql.pythonanywhere-services.com'
 #     }
 # }
-# Mật khẩu database online: Supabase@123
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -190,29 +180,20 @@ USE_TZ = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Thông tin chứng thực local mysql
-# CLIENT_ID = 'SdDY7dKlhC0psQZvmKXDH14hXNSzqdVgc6cWF2Lg'
-# CLIENT_SECRET = 'P4cBbnWk6wiIvO5kaRjLKlqQyvHiJk5rfaBUT2z9Q3g9qxPNbyMxYT7ogg8GYpzf8k4ee22Fhw4e3i84b9wFZUWCfAkImKOAVpJNakrhQALhBOs45jwbkB0QPUWvgO7E'
 
-
-# Oauth app pythonanywhere
-# CLIENT_ID = '8OdjuOvhjzLFCigIbuw3mbDAlhWTirzeM7s1W1g2'
-# CLIENT_SECRET = '8pj5yZzwnH0vN3hflMrJJ7QBENDCsMKfIUlGQ15Gyg9GPTRCFXsIxm7iiF7xmcPf2IOz5uIXmfD9TjXJI3mKWHIQQ1HStaY3duHkIrSc4GWJGcyg1ZQgKtYIOxRksXia'
-
-# Thông tin app chúng thực bên Database online
-# CLIENT_ID = 'O7s7zC71oV5apJerFffTTwqbiq9iC0sJ4obZknan'
-# CLIENT_SECRET = 'WVPx5paiJ1vD0Fn8wBYUSKxWl6Jee9P6UYALwKZscgDPwURdBPbr8TjXWjWV7EJJTCvhh6npFZx1AfFNLkwjY9Ou6HaE0e1aRIfpHq6MtfyzkHby736WBzFavyv4hjb8'
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend'
 ]
 
+# Social app config
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 
+# Email config
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
@@ -221,3 +202,23 @@ EMAIL_HOST_USER = 'nvcan1236.test@gmail.com'
 EMAIL_HOST_PASSWORD = 'yqgwpuwygngcnslw'
 DEFAULT_FROM_EMAIL = 'nvcan1236.test@gmail.com'
 DEFAULT_TO_EMAIL = 'nvcan1236.test@gmail.com'
+
+# VNPAY Config
+VNPAY_TMN_CODE = 'F6WDA8Q7'
+VNPAY_HASH_SECRET_KEY = 'S53ZTBNG5TF5KCUFQ3SLPNUQE988JNKU'
+VNPAY_PAYMENT_URL = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html'
+VNPAY_RETURN_URL = 'http://192.168.1.50:5500/vnpay/payment_return/'
+
+# Thông tin app chúng thực bên Database online
+# CLIENT_ID = 'O7s7zC71oV5apJerFffTTwqbiq9iC0sJ4obZknan'
+# CLIENT_SECRET = 'WVPx5paiJ1vD0Fn8wBYUSKxWl6Jee9P6UYALwKZscgDPwURdBPbr8TjXWjWV7EJJTCvhh6npFZx1AfFNLkwjY9Ou6HaE0e1aRIfpHq6MtfyzkHby736WBzFavyv4hjb8'
+#
+# # Thông tin chứng thực local mysql
+# # CLIENT_ID = 'SdDY7dKlhC0psQZvmKXDH14hXNSzqdVgc6cWF2Lg'
+# # CLIENT_SECRET = 'P4cBbnWk6wiIvO5kaRjLKlqQyvHiJk5rfaBUT2z9Q3g9qxPNbyMxYT7ogg8GYpzf8k4ee22Fhw4e3i84b9wFZUWCfAkImKOAVpJNakrhQALhBOs45jwbkB0QPUWvgO7E'
+#
+# # Oauth app pythonanywhere
+# # CLIENT_ID = '8OdjuOvhjzLFCigIbuw3mbDAlhWTirzeM7s1W1g2'
+# # CLIENT_SECRET = '8pj5yZzwnH0vN3hflMrJJ7QBENDCsMKfIUlGQ15Gyg9GPTRCFXsIxm7iiF7xmcPf2IOz5uIXmfD9TjXJI3mKWHIQQ1HStaY3duHkIrSc4GWJGcyg1ZQgKtYIOxRksXia'
+#
+# Mật khẩu database online: Supabase@123

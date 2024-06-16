@@ -29,6 +29,7 @@ class UserAdmin(admin.ModelAdmin):
     list_filter = ['is_active', 'user_role', 'gender']
     search_fields = ['email', 'phone', 'first_name', 'last_name']
     actions = [active, soft_delete]
+    list_display = ['first_name', 'last_name','email', 'phone','user_role','is_active']
 
     def avatar_image(self, obj):
         if obj.avatar:
@@ -53,6 +54,7 @@ class MotelAdmin(admin.ModelAdmin):
     actions = [approve_motel, active, soft_delete]
     # inlines = [ImageInline]
     readonly_fields = ['display_images']
+    list_display = ["ward", "district", "city", 'other_address', 'price', 'approved', 'is_active']
 
     def display_images(self, obj):
         images = ''.join(

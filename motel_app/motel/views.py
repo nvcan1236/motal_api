@@ -3,7 +3,8 @@ from datetime import datetime
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, generics, response, status, permissions, filters
 from rest_framework.decorators import action
-from django.core.mail import send_mail
+from rest_framework.views import APIView
+import vnpay
 
 from motel import serializers, perms, paginators
 from motel.models import User, Follow, Motel, MotelImage, Price, Reservation, UserRole
@@ -11,6 +12,21 @@ from motel.utils import send_motel_news_email
 from post.models import PostForRent, PostForLease
 from post.serializers import ReadPostForRentSerializer, ReadPostForLeaseSerializer
 from motel.serializers import PriceSerializer, ImageSerializer, WriteMotelSerializer
+
+
+class VNPayCheckoutAPI(APIView):
+    def post(self, request, *args, **kwargs):
+        # Get necessary data from request
+        amount = request.data.get('amount')
+        order_info = request.data.get('order_info')
+
+        # Generate VNPay payment data
+        payment_data = vnpay.create_payment_data(amount=amount, order_info=order_info)
+
+        # In a real-world application, you might want to save payment_data in your database
+        # and return a unique identifier or token for this transaction
+
+        return response.Response(payment_data)
 
 
 class UpdatePartialAPIView(generics.UpdateAPIView):
@@ -163,9 +179,9 @@ class MotelViewSet(viewsets.ViewSet,
 
         if min_area and max_area:
             queryset = queryset.filter(area__range=(min_area, max_area))
-        elif min_price:
+        elif min_area:
             queryset = queryset.filter(area__gte=min_area)
-        elif max_price:
+        elif max_area:
             queryset = queryset.filter(area__lte=max_area)
 
         if lat and lon:

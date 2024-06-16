@@ -10,14 +10,19 @@ class PostForm(forms.ModelForm):
 
     class Meta:
         model = Post
-
         fields = '__all__'
 
 
-class PostAdmin(admin.ModelAdmin):
+class PostForRentAdmin(admin.ModelAdmin):
+    list_display = ['user', 'ward', 'district', 'city', 'other_address', 'is_active', ]
+    form = PostForm
+
+
+class PostForLeaseAdmin(admin.ModelAdmin):
+    list_display = ['user', 'motel', 'is_active', ]
     form = PostForm
 
 
 # Register your models here.
-admin_site.register(PostForRent, PostAdmin)
-admin_site.register(PostForLease, PostAdmin)
+admin_site.register(PostForRent, PostForRentAdmin)
+admin_site.register(PostForLease, PostForLeaseAdmin)

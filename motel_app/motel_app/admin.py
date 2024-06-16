@@ -1,7 +1,9 @@
-from django.contrib import admin
+from django.contrib import admin, messages
+from django.shortcuts import redirect
 from django.urls import path
 from django.template.response import TemplateResponse
 from allauth.socialaccount.models import SocialApp
+from vnpay.models import Billing
 
 import motel.utils
 import post.utils
@@ -20,14 +22,24 @@ class MyAdminSite(admin.AdminSite):
         ] + super().get_urls()
 
     def motel_stats_view(self, request):
+        if not request.user.is_authenticated:
+            messages.error(request, "Bạn cần phải đăng nhập để xem thống kê.")
+            return redirect('/admin/login/')
         stats = motel.utils.get_motel_stats()
+
         return TemplateResponse(request, 'admin/motel-stats.html', {**stats})
 
     def post_stats_view(self, request):
+        if not request.user.is_authenticated:
+            messages.error(request, "Bạn cần phải đăng nhập để xem thống kê.")
+            return redirect('/admin/login/')
         stats = post.utils.get_post_stats()
         return TemplateResponse(request, 'admin/post-stats.html', {**stats})
 
     def user_stats_view(self, request):
+        if not request.user.is_authenticated:
+            messages.error(request, "Bạn cần phải đăng nhập để xem thống kê.")
+            return redirect('/admin/login/')
         stats = motel.utils.get_user_stats()
         return TemplateResponse(request, 'admin/user-stats.html',
                                 {**stats})
@@ -58,4 +70,5 @@ class MyAdminSite(admin.AdminSite):
 
 
 admin_site = MyAdminSite(name='myadminsite')
-admin_site.register(SocialApp)
+# admin_site.register(SocialApp)
+admin_site.register(Billing)
