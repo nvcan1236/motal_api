@@ -14,19 +14,19 @@ from post.serializers import ReadPostForRentSerializer, ReadPostForLeaseSerializ
 from motel.serializers import PriceSerializer, ImageSerializer, WriteMotelSerializer
 
 
-class VNPayCheckoutAPI(APIView):
-    def post(self, request, *args, **kwargs):
-        # Get necessary data from request
-        amount = request.data.get('amount')
-        order_info = request.data.get('order_info')
-
-        # Generate VNPay payment data
-        payment_data = vnpay.create_payment_data(amount=amount, order_info=order_info)
-
-        # In a real-world application, you might want to save payment_data in your database
-        # and return a unique identifier or token for this transaction
-
-        return response.Response(payment_data)
+# class VNPayCheckoutAPI(APIView):
+#     def post(self, request, *args, **kwargs):
+#         # Get necessary data from request
+#         amount = request.data.get('amount')
+#         order_info = request.data.get('order_info')
+#
+#         # Generate VNPay payment data
+#         payment_data = vnpay.create_payment_data(amount=amount, order_info=order_info)
+#
+#         # In a real-world application, you might want to save payment_data in your database
+#         # and return a unique identifier or token for this transaction
+#
+#         return response.Response(payment_data)
 
 
 class UpdatePartialAPIView(generics.UpdateAPIView):

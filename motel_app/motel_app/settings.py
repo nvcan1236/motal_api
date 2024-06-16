@@ -207,7 +207,7 @@ DEFAULT_TO_EMAIL = 'nvcan1236.test@gmail.com'
 VNPAY_TMN_CODE = 'F6WDA8Q7'
 VNPAY_HASH_SECRET_KEY = 'S53ZTBNG5TF5KCUFQ3SLPNUQE988JNKU'
 VNPAY_PAYMENT_URL = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html'
-VNPAY_RETURN_URL = 'http://192.168.1.50:5500/vnpay/payment_return/'
+VNPAY_RETURN_URL = 'http://127.0.0.1:8000/vnpay/payment_return/'
 
 # Thông tin app chúng thực bên Database online
 # CLIENT_ID = 'O7s7zC71oV5apJerFffTTwqbiq9iC0sJ4obZknan'
