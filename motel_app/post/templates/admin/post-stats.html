@@ -67,7 +67,7 @@
 {% block content %}
     <div class="container">
         <h1>POST STATS</h1>
-        <div class="row mt-5">
+        <div class="row mt-5 gap-5">
             <div class="col-md-4 col-12">
                 <h5>Số bài đăng mới mới</h5>
                 <div class="d-flex flex-wrap gap-1 mt-4 justify-content-between">
@@ -90,11 +90,14 @@
                     <div class="alert-success  py-3 text-center rounded" style="width: 200px">
                         <p class="fw-bold">Bài cho thuê</p>
                         <span class="fs-2 fw-bold">{{ post_for_lease_count }}</span></div>
-
                 </div>
             </div>
-            <div class="col-md-8 col-12 ps-5">
+            <div class="col-md-7">
                 <div id="columnchart_material"></div>
+            </div>
+        </div>
+        <div class="row mt-5">
+            <div class="col-md-12 col-12 ps-5">
                 <div class="mt-5">
                     <div id="chart_div"></div>
                 </div>

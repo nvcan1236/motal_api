@@ -2,7 +2,8 @@ from django.contrib import admin, messages
 from django.shortcuts import redirect
 from django.urls import path
 from django.template.response import TemplateResponse
-from allauth.socialaccount.models import SocialApp
+from allauth.socialaccount.models import SocialApp, SocialAccount, SocialToken
+from django.contrib.sites.models import Site
 from vnpay.models import Billing
 
 import motel.utils
@@ -16,16 +17,21 @@ class MyAdminSite(admin.AdminSite):
 
     def get_urls(self):
         return [
-            path('motel-stats/', self.motel_stats_view),
+            path('motel-stats/<str:period>', self.motel_stats_view),
             path('post-stats/', self.post_stats_view),
             path('user-stats/', self.user_stats_view),
         ] + super().get_urls()
 
-    def motel_stats_view(self, request):
+    def motel_stats_view(self, request, period):
         if not request.user.is_authenticated:
             messages.error(request, "Bạn cần phải đăng nhập để xem thống kê.")
             return redirect('/admin/login/')
-        stats = motel.utils.get_motel_stats()
+
+        try:
+            stats = motel.utils.get_motel_stats(period)
+        except ValueError as e:
+            messages.error(request, str(e))
+            return redirect('/admin/login/')
 
         return TemplateResponse(request, 'admin/motel-stats.html', {**stats})
 
@@ -51,7 +57,7 @@ class MyAdminSite(admin.AdminSite):
                 'models': [
                     {
                         'name': 'Motel Stats',
-                        'admin_url': '/admin/motel-stats/',
+                        'admin_url': '/admin/motel-stats/month',
                         "view_only": True,
                     },
                     {
@@ -70,5 +76,8 @@ class MyAdminSite(admin.AdminSite):
 
 
 admin_site = MyAdminSite(name='myadminsite')
-# admin_site.register(SocialApp)
+admin_site.register(SocialApp)
+admin_site.register(SocialToken)
+admin_site.register(SocialAccount)
+admin_site.register(Site)
 admin_site.register(Billing)

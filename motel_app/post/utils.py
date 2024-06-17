@@ -4,7 +4,6 @@ from django.utils import timezone
 
 from post.models import PostForLease, PostForRent, Post
 
-
 def get_post_stats():
     today = timezone.now()
     start_of_month = today.replace(day=1)

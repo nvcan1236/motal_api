@@ -1,4 +1,4 @@
-from django.db.models.functions import TruncMonth, Floor
+from django.db.models.functions import TruncMonth, Floor, Round, TruncQuarter, TruncYear
 from django.template.loader import render_to_string
 from django.utils import timezone
 
@@ -8,40 +8,69 @@ from motel.models import User, UserRole, Motel, Follow
 from django.core.mail import send_mail
 
 
-def get_motel_stats():
+def get_motel_stats(period):
     today = timezone.now()
-    start_of_month = today.replace(day=1)
-    end_of_month = start_of_month.replace(month=start_of_month.month % 12 + 1, day=1) - timezone.timedelta(days=1)
+
+    periodVn = {
+        "month": "Tháng",
+        "quarter": "Quý",
+        "year": "Năm"
+    }
+
+    if period == 'month':
+        start_of_period = today.replace(day=1)
+        end_of_period = (
+                    start_of_period.replace(month=start_of_period.month % 12 + 1, day=1) - timezone.timedelta(days=1))
+        trunc_func = TruncMonth
+    elif period == 'quarter':
+        quarter = (today.month - 1) // 3 + 1
+        start_of_period = today.replace(month=3 * (quarter - 1) + 1, day=1)
+        end_of_period = (
+                    start_of_period.replace(month=start_of_period.month % 12 + 3, day=1) - timezone.timedelta(days=1))
+        trunc_func = TruncQuarter
+    elif period == 'year':
+        start_of_period = today.replace(month=1, day=1)
+        end_of_period = today.replace(month=12, day=31)
+        trunc_func = TruncYear
+    else:
+        raise ValueError("Invalid period specified. Use 'month', 'quarter', or 'year'.")
+
     PRICE_RANGE = 2000000
     AREA_RANGE = 5
 
     motel_count = Motel.objects.filter(is_active=True).count()
     approved_count = Motel.objects.filter(is_active=True, approved=True).count()
-    new_motel_count = Motel.objects.filter(is_active=True, created_date__gte=start_of_month,
-                                           created_date__lte=end_of_month).count()
-    new_approved_motel_count = Motel.objects.filter(is_active=True, approved=True,
-                                                    created_date__gte=start_of_month,
-                                                    created_date__lte=end_of_month).count()
+    new_motel_count = Motel.objects.filter(is_active=True, created_date__gte=start_of_period,
+                                           created_date__lte=end_of_period).count()
+    new_approved_motel_count = Motel.objects.filter(is_active=True, approved=True, created_date__gte=start_of_period,
+                                                    created_date__lte=end_of_period).count()
 
     stats = (Motel.objects.filter(is_active=True)
-             .annotate(month=TruncMonth('created_date')).values('month')
+             .annotate(period=trunc_func('created_date')).values('period')
              .annotate(count=Count('id'))
              .annotate(approved_count=Count('id', filter=Q(approved=True)))
-             .order_by('month')
-             )
+             .order_by('period'))
 
     price_stats = (Motel.objects.filter(is_active=True, approved=True)
                    .annotate(price_range=Floor(F('price') / PRICE_RANGE)).values('price_range')
-                   .annotate(count=Count('id'))
-                   ).order_by('price_range').all()
+                   .annotate(
+        count=Count('id'), percentage=Round((Count('id') * 100.0) / approved_count, 2)
+    )
+                   .order_by('price_range').all())
 
     area_stats = (Motel.objects.filter(is_active=True, approved=True)
                   .annotate(area_range=Floor(F('area') / AREA_RANGE)).values('area_range')
-                  .annotate(count=Count('id'))
+                  .annotate(count=Count('id'), percentage=Round((Count('id') * 100.0) / approved_count, 2))
                   ).order_by('area_range').all()
 
     for item in stats:
-        item['month'] = f"{item['month'].month}-{item['month'].year}"
+        if period == 'month':
+            item['period'] = f"{item['period'].month}-{item['period'].year}"
+        elif period == 'quarter':
+            quarter = (item['period'].month - 1) // 3 + 1
+            item['period'] = f"Q{quarter}-{item['period'].year}"
+        elif period == 'year':
+            item['period'] = f"{item['period'].year}"
 
     for item in price_stats:
         item['price_range'] = f"{item['price_range'] * PRICE_RANGE} - {item['price_range'] * PRICE_RANGE + PRICE_RANGE}"
@@ -57,6 +86,7 @@ def get_motel_stats():
         'price_stats': price_stats,
         'area_stats': area_stats,
         'stats': stats,
+        'period': periodVn[period]
     }
 
 

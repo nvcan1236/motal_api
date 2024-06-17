@@ -60,6 +60,7 @@ MIDDLEWARE = [
 
 ]
 # STATIC_ROOT = "/home/CanhNguyen/motel_api/motel_app/static"
+STATIC_ROOT = "static/"
 MEDIA_ROOT = f'{BASE_DIR}/'
 ROOT_URLCONF = 'motel_app.urls'
 AUTH_USER_MODEL = 'motel.User'
@@ -126,21 +127,20 @@ DATABASES = {
 from dotenv import load_dotenv
 
 load_dotenv()
+SITE_ID = 2
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'SCOPE': [
             'profile',
             'email'
         ],
-        'APP': {
-            'client_id': os.environ['GOOGLE_CLIENT_ID'],
-            'secret': os.environ['GOOGLE_CLIENT_SECRET'],
-        },
         'AUTH_PARAMS': {
             'access_type': 'online',
         }
     }
 }
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ["GOOGLE_CLIENT_ID"]
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ["GOOGLE_CLIENT_SECRET"]
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -192,6 +192,7 @@ ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_EMAIL_VERIFICATION = 'none'
+
 
 # Email config
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
