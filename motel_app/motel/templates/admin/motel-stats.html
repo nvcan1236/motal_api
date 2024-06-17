@@ -57,8 +57,8 @@
 {% block content %}
     <div class="container">
         <div class="row mt-4 items-center gap-4">
-            <h1 class="col-4">MOTEL STATS</h1>
-            <div class="col-3 form-floating">
+            <h1 class="col-12 col-lg-4">MOTEL STATS</h1>
+            <div class="col-12 col-lg-3 form-floating">
                 <select class="form-select" onchange="setPeriod(event)" >
                     <option value="month">Tháng</option>
                     <option value="quarter">Quý</option>
@@ -66,8 +66,8 @@
                 </select>
                 <label for="sel1" class="form-label px-4">Thống kê theo (select one):</label>
             </div>
-            <button type="button" class="btn btn-success col-2" onclick="changePeriod()">Xem kết quả</button>
-            <button type="button" class="btn btn-outline-success col-2" id="switch-button" onclick="switchForm()">Xem
+            <button type="button" class="btn btn-success col-12  col-lg-2" onclick="changePeriod()">Xem kết quả</button>
+            <button type="button" class="btn btn-outline-success col-12  col-lg-2" id="switch-button" onclick="switchForm()">Xem
                 bảng báo cáo
             </button>
         </div>
@@ -76,7 +76,7 @@
             <div class="row mt-5">
                 <div class="col-md-4 col-12">
                     <h5>Trọ dùng đăng kí mới</h5>
-                    <div class="d-flex flex-wrap gap-1 mt-4 justify-content-between">
+                    <div class="d-flex flex-wrap gap-1 mt-4 justify-content-center">
                         <div class="alert-success py-3 text-center rounded" style="width: 200px">
                             <p class="fw-bold">Trọ đăng kí</p>
                             <span class="fs-2 fw-bold">{{ new_motel_count }}</span>
@@ -88,7 +88,7 @@
                     </div>
 
                     <h5 class="mt-5">Tổng số trọ</h5>
-                    <div class="d-flex flex-wrap gap-1 mt-4 justify-content-between">
+                    <div class="d-flex flex-wrap gap-1 mt-4 justify-content-center">
                         <div class="alert-success py-3 text-center rounded" style="width: 200px">
                             <p class="fw-bold">Tổng số trọ đăng ký</p>
                             <span class="fs-2 fw-bold">{{ motel_count }}</span>

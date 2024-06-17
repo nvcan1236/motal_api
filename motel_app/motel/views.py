@@ -3,8 +3,6 @@ from datetime import datetime
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, generics, response, status, permissions, filters
 from rest_framework.decorators import action
-from rest_framework.views import APIView
-import vnpay
 
 from motel import serializers, perms, paginators
 from motel.models import User, Follow, Motel, MotelImage, Price, Reservation, UserRole
@@ -13,22 +11,6 @@ from motel.utils import send_motel_news_email
 from post.models import PostForRent, PostForLease
 from post.serializers import ReadPostForRentSerializer, ReadPostForLeaseSerializer
 from motel.serializers import PriceSerializer, ImageSerializer, WriteMotelSerializer
-
-
-# class VNPayCheckoutAPI(APIView):
-#     def post(self, request, *args, **kwargs):
-#         # Get necessary data from request
-#         amount = request.data.get('amount')
-#         order_info = request.data.get('order_info')
-#
-#         # Generate VNPay payment data
-#         payment_data = vnpay.create_payment_data(amount=amount, order_info=order_info)
-#         bill = Billing.objects.get(payment_data)
-#         # In a real-world application, you might want to save payment_data in your database
-#         # and return a unique identifier or token for this transaction
-#
-#
-#         return response.Response(payment_data)
 
 
 class UpdatePartialAPIView(generics.UpdateAPIView):
