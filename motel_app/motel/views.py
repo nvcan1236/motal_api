@@ -8,6 +8,7 @@ import vnpay
 
 from motel import serializers, perms, paginators
 from motel.models import User, Follow, Motel, MotelImage, Price, Reservation, UserRole
+from vnpay.models import Billing
 from motel.utils import send_motel_news_email
 from post.models import PostForRent, PostForLease
 from post.serializers import ReadPostForRentSerializer, ReadPostForLeaseSerializer
@@ -22,9 +23,10 @@ from motel.serializers import PriceSerializer, ImageSerializer, WriteMotelSerial
 #
 #         # Generate VNPay payment data
 #         payment_data = vnpay.create_payment_data(amount=amount, order_info=order_info)
-#
+#         bill = Billing.objects.get(payment_data)
 #         # In a real-world application, you might want to save payment_data in your database
 #         # and return a unique identifier or token for this transaction
+#
 #
 #         return response.Response(payment_data)
 
@@ -237,18 +239,19 @@ class MotelViewSet(viewsets.ViewSet,
     @action(url_path='reserve', methods=['post'], detail=True)
     def reserve(self, request, pk):
         motel = self.get_object()
-        reserved = Reservation.objects.filter(is_active=True, motel=motel,
-                                              expiration__gt=datetime.now()).first()
+        bill = Billing.objects.get(reference_number=request.data.get("vnp_TransactionNo"))
+        if bill:
+            bill.result_payment = request.data.get("vnp_TransactionStatus")
+            bill.is_paid = request.data.get("vnp_TransactionStatus") == "00"
+            bill.transaction_id = request.data.get("vnp_TransactionNo")
+            pay_at_str = request.data.get("vnp_PayDate")
+            bill.pay_at = datetime.strptime(pay_at_str, '%Y%m%d%H%M%S')
+            bill.save()
 
-        if reserved:
-            if reserved.user.__eq__(request.user):
-                reserved.is_active = False
-                reserved.save()
-                return response.Response({"message": "Đã huỷ đặt trước"}, status.HTTP_204_NO_CONTENT)
-            return response.Response({"message": "Trọ đã được đặt trước"}, status.HTTP_400_BAD_REQUEST)
-
-        reservation = Reservation.objects.create(user=request.user, motel=motel)
-        return response.Response(serializers.ReservationSerializer(reservation).data, status.HTTP_201_CREATED)
+            reservation = Reservation.objects.create(user=request.user, motel=motel)
+            return response.Response(serializers.ReservationSerializer(reservation).data, status.HTTP_201_CREATED)
+        else:
+            return response.Response({"Message": "Thông tin thanh toán không hợp lệ!!"}, status.HTTP_400_BAD_REQUEST)
 
     def destroy(self, request, *args, **kwargs):
         motel = self.get_object()

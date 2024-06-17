@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
 from motel.models import User, Follow, Motel, MotelImage, Price, Reservation
 
@@ -60,10 +62,16 @@ class DetailUserSerializer(UserSerializer):
 
 
 class MotelSerializer(ModelSerializer):
+    is_reserved = SerializerMethodField()
+
+    def get_is_reserved(self, obj):
+        reserved = Reservation.objects.filter(is_active=True, motel=obj, expiration__gt=datetime.now()).first()
+        return reserved != None
+
     class Meta:
         model = Motel
         fields = ['id', 'description', 'price', 'max_people', 'ward',
-                  'district', 'city', 'other_address', 'area', 'owner']
+                  'district', 'city', 'other_address', 'area', 'owner', 'is_reserved']
         extra_kwargs = {
             'owner':
                 {'read_only': True},
